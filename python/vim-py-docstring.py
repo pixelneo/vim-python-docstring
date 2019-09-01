@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-import regex as re
-
+import re
+import ast
+from string import Template
 class MethodDocGenerator:
 
     def __init__(self, signature):
