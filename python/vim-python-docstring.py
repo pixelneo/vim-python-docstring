@@ -108,7 +108,9 @@ class Templater:
 
     def template(self, funcdef_indent, arguments):
         list_not_sub = self.template.safe_substitute(
-            i=funcdef_indent, i2=self.indent)
+            i=funcdef_indent,
+            i2=self.indent
+        )
         return self._substitute_list('args', list_not_sub, arguments)
 
 
