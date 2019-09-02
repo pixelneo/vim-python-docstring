@@ -5,6 +5,7 @@ from string import Template
 
 # TODO: class
 # TODO: class will have func, 'one_tab' to return indent of one tab more
+
 def substitute_list(list_name, template, list_):
     result_lines = []
     for line in template.split('\n'):
@@ -27,6 +28,9 @@ def google_template(arguments, funcdef_indent, indent):
         template = Template(f.read())
     list_not_sub = template.safe_substitute(i=funcdef_indent, i2=indent)
     return substitute_list('args', list_not_sub, arguments)
+
+def create_docstring(func=google_template):
+    pass
 
 if __name__ == '__main__':
     print(google_template(['arg1','arg2'],' '*4, ' '*4))
