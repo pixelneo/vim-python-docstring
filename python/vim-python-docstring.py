@@ -30,7 +30,7 @@ class Method:
         self.starting_line = vim_env.current.window.cursor[0] - 1
         self.max_lines = max_lines
         self.vim_env = vim_env
-        self.templater = templater 
+        self.templater = templater
 
     def write_docstring():
         func_indent, args = self._method_data()
