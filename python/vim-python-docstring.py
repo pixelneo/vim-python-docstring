@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
+
 class InvalidSyntax(Exception):
     pass
+
 
 class VimEnviroment:
     import vim
@@ -24,9 +26,10 @@ class VimEnviroment:
             current_row += 1
             yield current_row, buffer[current_row]
 
+
 class Method:
 
-    def __init__(self, vim_env, templater, max_lines = 30, style='google'):
+    def __init__(self, vim_env, templater, max_lines=30, style='google'):
         self.starting_line = vim_env.current.window.cursor[0] - 1
         self.max_lines = max_lines
         self.vim_env = vim_env
@@ -43,7 +46,8 @@ class Method:
         counter = 0
         while not valid:
             if counter == self.max_lines:
-                raise InvalidSyntax('The method either invalid or it is on > {} lines.'.format(str(self.max_lines)))
+                raise InvalidSyntax(
+                    'The method either invalid or it is on > {} lines.'.format(str(self.max_lines)))
             last_row, line = next(lines_it)
             lines.append(line)
             valid, tree = self._is_valid(''.join(lines))
@@ -65,13 +69,12 @@ class Method:
 
     def _is_valid(lines):
         import ast
-        func = ''.join(lines.lstrip(), '\n   pass') 
+        func = ''.join(lines.lstrip(), '\n   pass')
         try:
             tree = ast.parse(func)
             return True, tree
         except SyntaxError as e:
             return False, None
-
 
 
 class Templater:
@@ -80,7 +83,7 @@ class Templater:
     import os
 
     def __init__(self, location, indent, style='google'):
-        self.style='google'
+        self.style = 'google'
         self.indent = indent
         with open(os.path.join(location, '{}.txt'.format(self.style)), 'r') as f:
             self.template = Template(f.read())
@@ -95,7 +98,8 @@ class Templater:
                     new_lines = []
                     for item in list_:
                         new_line = re.sub('(\$\w+)', item, old_line)
-                        new_line = bytes(new_line, 'utf-8').decode('unicode_escape')
+                        new_line = bytes(
+                            new_line, 'utf-8').decode('unicode_escape')
                         new_lines.append(new_line)
                     result_lines.append(''.join(new_lines))
             else:
@@ -103,9 +107,9 @@ class Templater:
         return '\n'.join(result_lines)
 
     def template(self, funcdef_indent, arguments):
-        list_not_sub = self.template.safe_substitute(i=funcdef_indent, i2=self.indent)
+        list_not_sub = self.template.safe_substitute(
+            i=funcdef_indent, i2=self.indent)
         return self._substitute_list('args', list_not_sub, arguments)
-
 
 
 class MethodDocGenerator:
@@ -125,10 +129,6 @@ def final_call():
     templater = Templater('.', indent, style)
     method = Method(vim_env, templater)
 
+
 if __name__ == '__main__':
-    print(google_template(['arg1','arg2'],' '*4, ' '*4))
-
-
-
-
-
+    print(google_template(['arg1', 'arg2'], ' '*4, ' '*4))
