@@ -86,7 +86,7 @@ class Templater:
     def __init__(self, location, indent, style='google'):
         self.style = 'google'
         self.indent = indent
-        with open(os.path.join(location, 'styles/{}.txt'.format(self.style)), 'r') as f:
+        with open(os.path.join(location, '..', 'styles/{}.txt'.format(self.style)), 'r') as f:
             self.template = Template(f.read())
 
     def _substitute_list(self, list_name, template, list_):
