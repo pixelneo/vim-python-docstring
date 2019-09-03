@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from importlib import import_module
 import vim
-print(vim.current.buffer.vars.keys())
 
 
 class InvalidSyntax(Exception):
@@ -13,6 +12,7 @@ class VimEnviroment:
         self.vim = import_module('vim')
 
     def get_var(self, name):
+        print(vim.current.buffer.vars.keys())
         return self.vim.current.buffer.vars[name]
 
     @property
