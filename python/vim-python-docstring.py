@@ -130,6 +130,7 @@ def final_call():
     vim_env = VimEnviroment()
     templater = Templater('.', indent, style)
     method = Method(vim_env, templater)
+    method.write_docstring()
 
 
 if __name__ == '__main__':
