@@ -141,5 +141,5 @@ def initialize():
     settings = {'g:python_indent': '    ', 'g:python_style':'google'}
     for k,v in settings.items():
         if k not in vim.current.buffer.vars:
-            vim.command('let {} = {}'.format(k, v))
+            vim.command("let {} = '{}'".format(k, v))
 initialize()
