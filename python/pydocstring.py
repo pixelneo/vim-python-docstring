@@ -6,12 +6,10 @@ class InvalidSyntax(Exception):
 
 
 class VimEnviroment:
-
-    def __init__(self):
-        import vim
+    import vim
 
     def get_var(self, name):
-        return vim.current.buffer.vars[name]
+        return self.vim.current.buffer.vars[name]
 
     @property
     def indent(self):
