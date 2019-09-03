@@ -8,9 +8,12 @@ class InvalidSyntax(Exception):
 class VimEnviroment:
     import vim
 
+    def get_var(self, name):
+        return vim.current.buffer.vars[name]
+
     @property
     def indent(self):
-        return self.vars['g:python_indent']
+        return self.get_var('g:python_indent')
 
     def append_after_line(self, line_nr, text):
         for line in reversed(text.split('\n')):
@@ -128,9 +131,9 @@ class MethodDocGenerator:
 
 def final_call():
     vim_env = VimEnviroment()
-    style = vim.eval('g:python_style')
-    indent = vim.eval('g:python_indent')
-    location = vim.eval('s:plugin_root_dir')
+    style = vim_env.get_var('g:python_style')
+    indent = vim_env.get_var('g:python_indent')
+    location = vim_env.get_var('s:plugin_root_dir')
 
     templater = Templater(location, indent, style)
     method = Method(vim_env, templater)
