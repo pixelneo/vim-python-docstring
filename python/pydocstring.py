@@ -19,6 +19,7 @@ class VimEnviroment:
         return self.get_var('g:python_indent')
 
     def append_after_line(self, line_nr, text):
+        line_nr += 1
         for line in reversed(text.split('\n')):
             vim.current.buffer.append(line, line_nr)
     @property
@@ -149,4 +150,4 @@ def final_call():
 def initialize():
     settings = {'g:python_indent': '    ', 'g:python_style':'google'}
     for k,v in settings.items():
-        vim.command("let {} = get(g:,'{}', \"v\")".format(k, v))
+        vim.command("let {} = get(g:,'{}', \"{}\")".format(k, v, v))
