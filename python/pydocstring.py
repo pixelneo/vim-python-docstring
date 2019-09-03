@@ -6,7 +6,8 @@ class InvalidSyntax(Exception):
 
 
 class VimEnviroment:
-    import vim
+    def __init__(self):
+        import vim
 
     def get_var(self, name):
         return self.vim.current.buffer.vars[name]
@@ -81,11 +82,11 @@ class Method:
 
 
 class Templater:
-    from string import Template
-    import re
-    import os
-
     def __init__(self, location, indent, style='google'):
+        from string import Template
+        import re
+        import os
+
         self.style = 'google'
         self.indent = indent
         with open(os.path.join(location, 'styles/{}.txt'.format(self.style)), 'r') as f:
