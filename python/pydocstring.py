@@ -1,21 +1,17 @@
 #!/usr/bin/env python3
-from importlib import import_module
 from string import Template
 import re
 import os
 import vim
-
 
 class InvalidSyntax(Exception):
     pass
 
 
 class VimEnviroment:
-    def __init__(self):
-        self.vim = import_module('vim')
 
     def get_var(self, name):
-        return self.vim.eval(name)
+        return vim.eval(name)
 
     @property
     def indent(self):
@@ -88,9 +84,6 @@ class Method:
 
 class Templater:
     def __init__(self, location, indent, style='google'):
-        self.re= import_module('re')
-        self.os= import_module('os')
-
         self.style = 'google'
         self.indent = indent
         with open(os.path.join(location, 'styles/{}.txt'.format(self.style)), 'r') as f:
@@ -146,7 +139,6 @@ def final_call():
     method.write_docstring()
 
 def initialize():
-    import vim
     settings = {'g:python_indent': '    ', 'g:python_style':'google'}
     for k,v in settings.items():
         vim.command("let {} = get(g:,'{}', \"v\")".format(k, v))
