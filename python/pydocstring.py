@@ -20,6 +20,9 @@ class VimEnviroment:
     def append_after_line(self, line_nr, text):
         for line in reversed(text.split('\n')):
             vim.current.buffer.append(line, line_nr)
+    @property
+    def current_line(self):
+        return vim.current.window.cursosr[0] - 1
 
     def lines_following_cursor(self):
         import vim
@@ -35,7 +38,7 @@ class VimEnviroment:
 class Method:
 
     def __init__(self, vim_env, templater, max_lines=30, style='google'):
-        self.starting_line = vim_env.current.window.cursor[0] - 1
+        self.starting_line = vim_env.current_line
         self.max_lines = max_lines
         self.vim_env = vim_env
         self.templater = templater
