@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 from importlib import import_module
+from string import Template
+import re
+import os
+import vim
 
 
 class InvalidSyntax(Exception):
@@ -11,7 +15,7 @@ class VimEnviroment:
         self.vim = import_module('vim')
 
     def get_var(self, name):
-        return self.vim.current.buffer.vars[name]
+        return self.vim.eval(name)
 
     @property
     def indent(self):
@@ -86,9 +90,6 @@ class Templater:
     def __init__(self, location, indent, style='google'):
         self.re= import_module('re')
         self.os= import_module('os')
-        from string import Template
-        import re
-        import os
 
         self.style = 'google'
         self.indent = indent
@@ -148,5 +149,4 @@ def initialize():
     import vim
     settings = {'g:python_indent': '    ', 'g:python_style':'google'}
     for k,v in settings.items():
-        if k not in vim.current.buffer.vars:
-            vim.command("let {} = '{}'".format(k, v))
+        vim.command("let {} = get(g:,'{}', \"v\")".format(k, v))
