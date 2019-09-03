@@ -6,7 +6,9 @@ class InvalidSyntax(Exception):
 
 
 class VimEnviroment:
-    import vim
+
+    def __init__(self):
+        import vim
 
     def get_var(self, name):
         return vim.current.buffer.vars[name]
