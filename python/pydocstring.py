@@ -113,19 +113,6 @@ class Templater:
                 result_lines.append(line)
         return '\n'.join(result_lines)
 
-    v"""
-    v
-    v
-    v
-    vArgs:
-    vvself: ()
-    vvfuncdef_indent: ()
-    vvarguments: ()
-
-    vReturns:
-    vv
-    v
-    v"""
 
     def get_template(self, funcdef_indent, arguments):
         print(self.indent)
