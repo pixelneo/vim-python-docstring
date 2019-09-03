@@ -4,7 +4,8 @@ import re
 import os
 import vim
 import ast
-import .vimenv
+
+from .vimenv import *
 
 
 class InvalidSyntax(Exception):
