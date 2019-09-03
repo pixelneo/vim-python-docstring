@@ -58,7 +58,9 @@ class Method:
                     'The method either invalid or it is on > {} lines.'.format(str(self.max_lines)))
             last_row, line = next(lines_it)
             lines.append(line)
-            valid, tree = self._is_valid(''.join(lines))
+            data = ''.join(lines)
+            print(data)
+            valid, tree = self._is_valid(data)
 
         arguments = self._arguments(tree)
         func_indent = re.findall('^(\s*)', lines[0])[0]
