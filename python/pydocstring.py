@@ -32,8 +32,8 @@ class VimEnviroment:
         cursor_row = vim.current.window.cursor[0]-1
         current_row = cursor_row
         while True:
-            current_row += 1
             yield current_row, buffer[current_row]
+            current_row += 1
 
 
 class Method:
