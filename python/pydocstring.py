@@ -1,44 +1,13 @@
 #!/usr/bin/env python3
 from string import Template
+from vimenv import *
 import re
 import os
-import vim
 import ast
-
-from .vimenv import *
 
 
 class InvalidSyntax(Exception):
     pass
-
-
-class VimEnviroment:
-
-    def get_var(self, name):
-        return vim.eval(name)
-
-    @property
-    def indent(self):
-        return self.get_var('g:python_indent')
-
-    def append_after_line(self, line_nr, text):
-        line_nr += 1
-        for line in reversed(text.split('\n')):
-            vim.current.buffer.append(line, line_nr)
-
-    @property
-    def current_line(self):
-        return vim.current.window.cursor[0] - 1
-
-    def lines_following_cursor(self):
-        import vim
-        lines = []
-        buffer = vim.current.buffer
-        cursor_row = vim.current.window.cursor[0]-1
-        current_row = cursor_row
-        while True:
-            yield current_row, buffer[current_row]
-            current_row += 1
 
 
 class Method:
@@ -120,7 +89,6 @@ class Templater:
         return '\n'.join(result_lines)
 
     def get_template(self, funcdef_indent, arguments):
-        print(self.indent)
         list_not_sub = self.template.safe_substitute(
             i=funcdef_indent,
             i2=self.indent
@@ -141,18 +109,13 @@ class MethodDocGenerator:
 
 
 def final_call():
-    initialize()
     vim_env = VimEnviroment()
-    style = vim_env.get_var('g:python_style')
-    indent = vim_env.get_var('g:python_indent')
-    location = vim_env.get_var('s:plugin_root_dir')
+    style = vim_env.python_style
+    indent = vim_env.python_indent
+    location = vim_env.plugin_root_dir
 
     templater = Templater(location, indent, style)
     method = Method(vim_env, templater)
     method.write_docstring()
 
 
-def initialize():
-    settings = {'g:python_indent': '    ', 'g:python_style': 'google'}
-    for k, v in settings.items():
-        vim.command("let {} = get(g:,'{}', \"{}\")".format(k, v, v))

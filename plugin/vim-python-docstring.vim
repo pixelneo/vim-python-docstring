@@ -5,10 +5,13 @@ import sys
 from os.path import normpath, join
 import vim
 plugin_root_dir = vim.eval('s:plugin_root_dir')
+scr = join(plugin_root_dir, '..', 'python')
 python_root_dir = normpath(join(plugin_root_dir, '..', 'python'))
-sys.path.insert(0, python_root_dir)
+deps = [scr]
+sys.path[0:0] = deps
 import pydocstring
 EOF
+"sys.path.insert(0, python_root_dir)
 
 function! Docstring()
     python3 pydocstring.final_call()
