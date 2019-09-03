@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from importlib import import_module
-import vim
 
 
 class InvalidSyntax(Exception):
@@ -12,7 +11,6 @@ class VimEnviroment:
         self.vim = import_module('vim')
 
     def get_var(self, name):
-        print(vim.current.buffer.vars.keys())
         return self.vim.current.buffer.vars[name]
 
     @property
@@ -136,6 +134,7 @@ class MethodDocGenerator:
 
 
 def final_call():
+    initialize()
     vim_env = VimEnviroment()
     style = vim_env.get_var('g:python_style')
     indent = vim_env.get_var('g:python_indent')
@@ -151,4 +150,3 @@ def initialize():
     for k,v in settings.items():
         if k not in vim.current.buffer.vars:
             vim.command("let {} = '{}'".format(k, v))
-initialize()
