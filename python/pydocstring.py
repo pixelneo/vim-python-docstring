@@ -22,7 +22,7 @@ class VimEnviroment:
             vim.current.buffer.append(line, line_nr)
     @property
     def current_line(self):
-        return vim.current.window.cursosr[0] - 1
+        return vim.current.window.cursor[0] - 1
 
     def lines_following_cursor(self):
         import vim
