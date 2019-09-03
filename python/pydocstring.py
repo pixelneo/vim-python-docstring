@@ -45,8 +45,9 @@ class Method:
         self.templater = templater
 
     def write_docstring(self):
-        func_indent, args = self._method_data()
-        self.templater.get_template(func_indent, args)
+        last_row, func_indent, args = self._method_data()
+        docstring = self.templater.get_template(func_indent, args)
+        self.vim_env.append_after_line(last_row, docstring)
 
     def _method_data(self):
         lines = []
@@ -58,8 +59,6 @@ class Method:
                 raise InvalidSyntax(
                     'The method either invalid or it is on > {} lines.'.format(str(self.max_lines)))
             last_row, line = next(lines_it)
-            print(line)
-            print(last_row)
             lines.append(line)
             data = ''.join(lines)
             valid, tree = self._is_valid(data)
@@ -69,7 +68,7 @@ class Method:
         arguments = self._arguments(tree)
         func_indent = re.findall('^(\s*)', lines[0])[0]
 
-        return func_indent, arguments
+        return last_row, func_indent, arguments
 
     def _arguments(self,tree):
         try:
