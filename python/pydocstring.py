@@ -4,6 +4,7 @@ import re
 import os
 import vim
 import ast
+import vimenv
 
 
 class InvalidSyntax(Exception):
@@ -20,20 +21,6 @@ class VimEnviroment:
         return self.get_var('g:python_indent')
 
     def append_after_line(self, line_nr, text):
-        """
-
-
-
-        Args:
-            self: ()
-            line_nr: ()
-            text: ()
-
-        Returns:
-
-
-        """
-
         line_nr += 1
         for line in reversed(text.split('\n')):
             vim.current.buffer.append(line, line_nr)
@@ -91,6 +78,8 @@ class Method:
             args = []
             for arg in tree.body[0].args.args:
                 args.append(arg.arg)
+            if args[0] == 'self' or args[0] == 'cls':
+                args.pop(0)
             return args
         except SyntaxError as e:
             raise InvalidSyntax('The method has invalid syntax.')
