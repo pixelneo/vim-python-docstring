@@ -3,6 +3,7 @@ from string import Template
 import re
 import os
 import vim
+import ast
 
 class InvalidSyntax(Exception):
     pass
@@ -31,6 +32,7 @@ class VimEnviroment:
         cursor_row = vim.current.window.cursor[0]-1
         current_row = cursor_row
         while True:
+            print(buffer[current_row])
             current_row += 1
             yield current_row, buffer[current_row]
 
@@ -57,10 +59,12 @@ class Method:
                 raise InvalidSyntax(
                     'The method either invalid or it is on > {} lines.'.format(str(self.max_lines)))
             last_row, line = next(lines_it)
+            print(line)
             lines.append(line)
             data = ''.join(lines)
-            print(data)
             valid, tree = self._is_valid(data)
+            counter += 1
+
 
         arguments = self._arguments(tree)
         func_indent = re.findall('^(\s*)', lines[0])[0]
@@ -68,7 +72,6 @@ class Method:
         return func_indent, arguments
 
     def _arguments(self,tree):
-        import ast
         try:
             args = []
             for arg in tree.body[0].args.args:
@@ -78,7 +81,6 @@ class Method:
             raise InvalidSyntax('The method has invalid syntax.')
 
     def _is_valid(self,lines):
-        import ast
         func = ''.join([lines.lstrip(), '\n   pass'])
         try:
             tree = ast.parse(func)
