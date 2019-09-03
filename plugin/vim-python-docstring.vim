@@ -1,1 +1,1 @@
-command! -nargs=0 Docstring call loader#DocstringCall()
+command! -nargs=0 Docstring call vimpythondocstring#DocstringCall()
