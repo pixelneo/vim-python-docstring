@@ -77,7 +77,7 @@ class Method:
 
     def _is_valid(self,lines):
         import ast
-        func = ''.join(lines.lstrip(), '\n   pass')
+        func = ''.join([lines.lstrip(), '\n   pass'])
         try:
             tree = ast.parse(func)
             return True, tree
