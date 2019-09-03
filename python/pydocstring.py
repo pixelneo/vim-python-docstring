@@ -10,7 +10,7 @@ class VimEnviroment:
         import vim
 
     def get_var(self, name):
-        return self.vim.current.buffer.vars[name]
+        return vim.current.buffer.vars[name]
 
     @property
     def indent(self):
