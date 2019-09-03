@@ -59,6 +59,7 @@ class Method:
                     'The method either invalid or it is on > {} lines.'.format(str(self.max_lines)))
             last_row, line = next(lines_it)
             print(line)
+            print(last_row)
             lines.append(line)
             data = ''.join(lines)
             valid, tree = self._is_valid(data)
