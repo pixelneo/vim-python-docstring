@@ -43,11 +43,11 @@ class Method:
         self.vim_env = vim_env
         self.templater = templater
 
-    def write_docstring():
+    def write_docstring(self):
         func_indent, args = self._method_data()
         self.templater.template(func_indent, args)
 
-    def _method_data():
+    def _method_data(self):
         lines = []
         valid = False
         lines_it = self.vim_env.lines_following_cursor()
@@ -65,7 +65,7 @@ class Method:
 
         return func_indent, arguments
 
-    def _arguments(tree):
+    def _arguments(self,tree):
         import ast
         try:
             args = []
@@ -75,7 +75,7 @@ class Method:
         except SyntaxError as e:
             raise InvalidSyntax('The method has invalid syntax.')
 
-    def _is_valid(lines):
+    def _is_valid(self,lines):
         import ast
         func = ''.join(lines.lstrip(), '\n   pass')
         try:
