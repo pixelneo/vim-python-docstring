@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 from importlib import import_module
+import vim
+print(vim.current.buffer.vars.keys())
 
 
 class InvalidSyntax(Exception):
