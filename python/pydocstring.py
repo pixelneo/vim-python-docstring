@@ -46,7 +46,7 @@ class Method:
 
     def write_docstring(self):
         func_indent, args = self._method_data()
-        self.templater.template(func_indent, args)
+        self.templater.get_template(func_indent, args)
 
     def _method_data(self):
         lines = []
@@ -114,7 +114,7 @@ class Templater:
                 result_lines.append(line)
         return '\n'.join(result_lines)
 
-    def template(self, funcdef_indent, arguments):
+    def get_template(self, funcdef_indent, arguments):
         list_not_sub = self.template.safe_substitute(
             i=funcdef_indent,
             i2=self.indent
