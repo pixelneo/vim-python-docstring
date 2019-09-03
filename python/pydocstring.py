@@ -5,6 +5,7 @@ import os
 import vim
 import ast
 
+
 class InvalidSyntax(Exception):
     pass
 
@@ -19,9 +20,24 @@ class VimEnviroment:
         return self.get_var('g:python_indent')
 
     def append_after_line(self, line_nr, text):
+        """
+
+
+
+        Args:
+            self: ()
+            line_nr: ()
+            text: ()
+
+        Returns:
+
+
+        """
+
         line_nr += 1
         for line in reversed(text.split('\n')):
             vim.current.buffer.append(line, line_nr)
+
     @property
     def current_line(self):
         return vim.current.window.cursor[0] - 1
@@ -65,13 +81,12 @@ class Method:
             valid, tree = self._is_valid(data)
             counter += 1
 
-
         arguments = self._arguments(tree)
         func_indent = re.findall('^(\s*)', lines[0])[0]
 
         return last_row, func_indent, arguments
 
-    def _arguments(self,tree):
+    def _arguments(self, tree):
         try:
             args = []
             for arg in tree.body[0].args.args:
@@ -80,7 +95,7 @@ class Method:
         except SyntaxError as e:
             raise InvalidSyntax('The method has invalid syntax.')
 
-    def _is_valid(self,lines):
+    def _is_valid(self, lines):
         func = ''.join([lines.lstrip(), '\n   pass'])
         try:
             tree = ast.parse(func)
@@ -114,7 +129,6 @@ class Templater:
                 result_lines.append(line)
         return '\n'.join(result_lines)
 
-
     def get_template(self, funcdef_indent, arguments):
         print(self.indent)
         list_not_sub = self.template.safe_substitute(
@@ -123,7 +137,7 @@ class Templater:
         )
         return self._substitute_list('args', list_not_sub, arguments)
 
-
+# Unused
 class MethodDocGenerator:
     def __init__(self, style):
         self.style = style
@@ -147,7 +161,8 @@ def final_call():
     method = Method(vim_env, templater)
     method.write_docstring()
 
+
 def initialize():
-    settings = {'g:python_indent': '    ', 'g:python_style':'google'}
-    for k,v in settings.items():
+    settings = {'g:python_indent': '    ', 'g:python_style': 'google'}
+    for k, v in settings.items():
         vim.command("let {} = get(g:,'{}', \"{}\")".format(k, v, v))
