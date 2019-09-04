@@ -2,9 +2,11 @@ $i$i2""" about_the_method
 
 $i${i2}more_in_depth_about_the_method
 
-${i}${i2}Args:
-#args:{${i}${i2}${i2}$item: ()\n}
-${i}${i2}Returns:
-$i$i2$i2
+&args[[[$i${i2}Args:
+#args:{$i$i2$i2$item: ()\n}]]]
+&returns[[[$i$i2Returns:
+$i$i2$i2]]]
 
+&raises[[[${i}${i2}Raises:
+#raises:{$i$i2$i2$item: \n}]]]
 $i$i2"""

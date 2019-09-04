@@ -93,7 +93,10 @@ class Templater:
             i=funcdef_indent,
             i2=self.indent
         )
-        return self._substitute_list('args', list_not_sub, arguments)
+        # TODO: raises
+        args_done = self._substitute_list('args', list_not_sub, arguments)
+        raises_done = self._substitute_list('raises', args_done, raises)
+        return raises_done
 
 # Unused
 class MethodDocGenerator:
