@@ -75,10 +75,11 @@ class ObjectWithDocstring(abc.ABC):
         lines_it = self.env.lines_following_cursor()
         counter = 0
         while not valid:
-            if counter == self.max_lines:
-                raise InvalidSyntax(
-                    'The method either invalid or it is on > {} lines.'.format(str(self.max_lines)))
-            last_row, line = next(lines_it)
+            try:
+                last_row, line = next(lines_it)
+            except StopIteration as e:
+                pass # TODO do something (is_valid?)
+
             lines.append(line)
             data = ''.join(lines)
             valid, tree = self._is_valid(data)
@@ -87,6 +88,7 @@ class ObjectWithDocstring(abc.ABC):
         arguments = self._arguments(tree)
         func_indent = re.findall('^(\s*)', lines[0])[0]
 
+    # TODO: change, adding pass will go away
     def _is_valid(self, lines):
         func = ''.join([lines.lstrip(), '\n   pass'])
         try:

@@ -96,8 +96,10 @@ class VimEnviroment(Enviroment):
         import vim
         lines = []
         buffer = vim.current.buffer
-        cursor_row = vim.current.window.cursor[0]-1
+        cursor_row = vim.current.window.cursor[0] - 1
         current_row = cursor_row
         while True:
+            if current_row >= len(vim.current.buffer) - 1:
+                raise StopIteration('Buffer is out of lines.')
             yield current_row, buffer[current_row]
             current_row += 1
