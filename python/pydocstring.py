@@ -16,71 +16,6 @@ class InvalidSyntax(Exception):
 class DocstringUnavailable(Exception):
     pass
 
-class ObjectWithDocstring(abc.ABC):
-    def __init__(self, vim_env, templater, max_lines=30, style='google'):
-        self.starting_line = vim_env.current_line_nr
-        self.max_lines = max_lines
-        self.vim_env = vim_env
-        self.templater = templater
-
-    def write_docstring(self):
-        last_row, func_indent, args = self._method_data()
-        docstring = self.templater.get_template(func_indent, args)
-        self.vim_env.append_after_line(last_row, docstring)
-
-
-class Method:
-
-    def __init__(self, vim_env, templater, max_lines=30, style='google'):
-        self.starting_line = vim_env.current_line_nr
-        self.max_lines = max_lines
-        self.vim_env = vim_env
-        self.templater = templater
-
-    def write_docstring(self):
-        last_row, func_indent, args = self._method_data()
-        docstring = self.templater.get_template(func_indent, args)
-        self.vim_env.append_after_line(last_row, docstring)
-
-    def _method_data(self):
-        lines = []
-        valid = False
-        lines_it = self.vim_env.lines_following_cursor()
-        counter = 0
-        while not valid:
-            if counter == self.max_lines:
-                raise InvalidSyntax(
-                    'The method either invalid or it is on > {} lines.'.format(str(self.max_lines)))
-            last_row, line = next(lines_it)
-            lines.append(line)
-            data = ''.join(lines)
-            valid, tree = self._is_valid(data)
-            counter += 1
-
-        arguments = self._arguments(tree)
-        func_indent = re.findall('^(\s*)', lines[0])[0]
-
-        return last_row, func_indent, arguments
-
-    def _arguments(self, tree):
-        try:
-            args = []
-            for arg in tree.body[0].args.args:
-                args.append(arg.arg)
-            if args[0] == 'self' or args[0] == 'cls':
-                args.pop(0)
-            return args
-        except SyntaxError as e:
-            raise InvalidSyntax('The method has invalid syntax.')
-
-    def _is_valid(self, lines):
-        func = ''.join([lines.lstrip(), '\n   pass'])
-        try:
-            tree = ast.parse(func)
-            return True, tree
-        except SyntaxError as e:
-            return False, None
-
 
 class Templater:
     def __init__(self, location, indent, style='google'):
@@ -117,19 +52,129 @@ class Templater:
         raises_done = self._substitute_list('raises', args_done, raises)
         return raises_done
 
+
+class ObjectWithDocstring(abc.ABC):
+
+    def __init__(self, env, templater, max_lines=30, style='google'):
+        self.starting_line = env.current_line_nr
+        self.max_lines = max_lines
+        self.env = env
+        self.templater = templater
+
+    @abc.abstractmethod
+    def write_docstring(self):
+        """ Method to create a docstring for appropriate object
+
+        Writes the docstring to correct lines in `self.env` object.
+        """
+
+    def _whole_string(self):
+        """ Get the source code of object under cursor. """
+        lines = []
+        valid = False
+        lines_it = self.env.lines_following_cursor()
+        counter = 0
+        while not valid:
+            if counter == self.max_lines:
+                raise InvalidSyntax(
+                    'The method either invalid or it is on > {} lines.'.format(str(self.max_lines)))
+            last_row, line = next(lines_it)
+            lines.append(line)
+            data = ''.join(lines)
+            valid, tree = self._is_valid(data)
+            counter += 1
+
+        arguments = self._arguments(tree)
+        func_indent = re.findall('^(\s*)', lines[0])[0]
+
+    def _is_valid(self, lines):
+        func = ''.join([lines.lstrip(), '\n   pass'])
+        try:
+            tree = ast.parse(func)
+            return True, tree
+        except SyntaxError as e:
+            return False, None
+
+
+
+
+
+
+class MethodController(ObjectWithDocstring):
+
+    def __init__(self, env, templater, max_lines=30, style='google'):
+        super().__init__(env, templater, max_lines, style)
+
+    # TODO: set cursor on appropriate position to fill the docstring
+    def write_docstring(self):
+        last_row, func_indent, args = self._method_data()
+        docstring = self.templater.get_template(func_indent, args)
+        self.env.append_after_line(last_row, docstring)
+
+    def _method_data(self):
+        lines = []
+        valid = False
+        lines_it = self.env.lines_following_cursor()
+        counter = 0
+        while not valid:
+            if counter == self.max_lines:
+                raise InvalidSyntax(
+                    'The method either invalid or it is on > {} lines.'.format(str(self.max_lines)))
+            last_row, line = next(lines_it)
+            lines.append(line)
+            data = ''.join(lines)
+            valid, tree = self._is_valid(data)
+            counter += 1
+
+        arguments = self._arguments(tree)
+        func_indent = re.findall('^(\s*)', lines[0])[0]
+
+        return last_row, func_indent, arguments
+
+    def _arguments(self, tree):
+        try:
+            args = []
+            for arg in tree.body[0].args.args:
+                args.append(arg.arg)
+            if args[0] == 'self' or args[0] == 'cls':
+                args.pop(0)
+            return args
+        except SyntaxError as e:
+            raise InvalidSyntax('The method has invalid syntax.')
+
+    def _is_valid(self, lines):
+        func = ''.join([lines.lstrip(), '\n   pass'])
+        try:
+            tree = ast.parse(func)
+            return True, tree
+        except SyntaxError as e:
+            return False, None
+
+class ClassController(ObjectWithDocstring):
+
+    def __init__(self, env, templater, max_lines=30, style='google'):
+        super().__init__(env, templater, max_lines, style)
+
+    def write_docstring(self):
+        last_row, func_indent, args = self._method_data()
+        docstring = self.templater.get_template(func_indent, args)
+        self.env.append_after_line(last_row, docstring)
+
+
+
+
 # Unused
 class MethodDocGenerator:
-    def __init__(self, templater, vim_env):
-        self.templater = templater
-        self.vim_env = vim_env
+    def __init__(self, templater, env, style):
+        self.object = self._create_object_controller(env, templater, style)
 
-    def _object_type_under_cursor(self):
-        line = self.vim_env.current_line
+    def _create_object_controller(self, env, templater, style):
+        line = self.env.current_line
         first_word = re.match('^\s*(\w+).*', line).groups()[0]
         if first_word == 'def':
-            return ObjectType.METHOD
+            return MethodController(env, templater, style=style)
         elif first_word == 'class':
-            return ObjectType.CLASS
+            return ClassController(env, templater, style=style)
         else:
             raise DocstringUnavailable('Docstring cannot be created for selected object')
 
@@ -142,13 +187,13 @@ class MethodDocGenerator:
 
 
 def final_call():
-    vim_env = VimEnviroment()
-    style = vim_env.python_style
-    indent = vim_env.python_indent
-    location = vim_env.plugin_root_dir
+    env = VimEnviroment()
+    style = env.python_style
+    indent = env.python_indent
+    location = env.plugin_root_dir
 
     templater = Templater(location, indent, style)
-    method = Method(vim_env, templater)
+    method = MethodController(env, templater)
     method.write_docstring()
 
 

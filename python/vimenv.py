@@ -1,8 +1,63 @@
 import vim
+import abc
 
 from utils import ObjectType
 
-class VimEnviroment:
+
+class Enviroment(abc.ABC):
+
+    @property
+    @abc.abstractmethod
+    def plugin_root_dir(self):
+        """ Return absolute path to directory one level above of directory
+            containing python scripts.
+        """
+
+    @property
+    @abc.abstractmethod
+    def python_style(self):
+        """ Returns string containing docstring style: google, numpy, etc.
+            The style has to have corresponding template of name <style>.txt 
+            in folder 'styles'.
+        """
+
+    @property
+    @abc.abstractmethod
+    def python_indent(self):
+        """ Returns indentation of python source (tab, 4 spaces, ...) """
+
+    @property
+    @abc.abstractmethod
+    def current_line_nr(self):
+        """ Returns number of the current line, indexed from 0. """
+
+    @property
+    @abc.abstractmethod
+    def current_line(self):
+        """ Returns current line. """
+
+    @abc.abstractmethod
+    def append_after_line(self, line_nr, text):
+        """ Print to buffer
+
+        Append `text` to buffer on line below `line_nr`.
+
+        Args:
+            line_nr: (int)
+            text: (str)
+
+        """
+
+    @abc.abstractmethod
+    def lines_following_cursor(self):
+        """ Generator that iterates lines in buffer, starting from current line. """
+
+    #TODO will this work???
+    @abc.abstractmethod
+    def lines_till_end(self):
+        """ Returns all lines from the current one until the end. """
+
+class VimEnviroment(Enviroment):
 
     def __init__(self):
         settings = {'g:python_indent': '    ', 'g:python_style': 'google'}
