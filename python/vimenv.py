@@ -1,5 +1,7 @@
 import vim
 
+from utils import ObjectType
+
 class VimEnviroment:
 
     def __init__(self):
@@ -23,8 +25,12 @@ class VimEnviroment:
         return self._get_var('g:python_indent')
 
     @property
-    def current_line(self):
+    def current_line_nr(self):
         return vim.current.window.cursor[0] - 1
+
+    @property
+    def current_line(self):
+        return vim.current.line
 
     def append_after_line(self, line_nr, text):
         line_nr += 1

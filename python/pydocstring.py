@@ -1,19 +1,38 @@
 #!/usr/bin/env python3
 from string import Template
-from vimenv import *
 import re
 import os
 import ast
+import abc
+
+from vimenv import *
+from utils import ObjectType
 
 
 class InvalidSyntax(Exception):
     pass
 
 
+class DocstringUnavailable(Exception):
+    pass
+
+class ObjectWithDocstring(abc.ABC):
+    def __init__(self, vim_env, templater, max_lines=30, style='google'):
+        self.starting_line = vim_env.current_line_nr
+        self.max_lines = max_lines
+        self.vim_env = vim_env
+        self.templater = templater
+
+    def write_docstring(self):
+        last_row, func_indent, args = self._method_data()
+        docstring = self.templater.get_template(func_indent, args)
+        self.vim_env.append_after_line(last_row, docstring)
+
+
 class Method:
 
     def __init__(self, vim_env, templater, max_lines=30, style='google'):
-        self.starting_line = vim_env.current_line
+        self.starting_line = vim_env.current_line_nr
         self.max_lines = max_lines
         self.vim_env = vim_env
         self.templater = templater
@@ -100,9 +119,20 @@ class Templater:
 
 # Unused
 class MethodDocGenerator:
-    def __init__(self, style):
-        self.style = style
-        self.method = Method(style)
+    def __init__(self, templater, vim_env):
+        self.templater = templater
+        self.vim_env = vim_env
+
+    def _object_type_under_cursor(self):
+        line = self.vim_env.current_line
+        first_word = re.match('^\s*(\w+).*', line).groups()[0]
+        if first_word == 'def':
+            return ObjectType.METHOD
+        elif first_word == 'class':
+            return ObjectType.CLASS
+        else:
+            raise DocstringUnavailable('Docstring cannot be created for selected object')
+
 
     def new_docstring(self):  # generates new docstring no matter what
         pass
