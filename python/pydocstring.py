@@ -69,7 +69,7 @@ class ObjectWithDocstring(abc.ABC):
         """
 
     def _whole_string(self):
-        """ Get the source code of object under cursor. """
+        """ Get the source code of the object under cursor. """
         lines = []
         valid = False
         lines_it = self.env.lines_following_cursor()
@@ -87,7 +87,35 @@ class ObjectWithDocstring(abc.ABC):
 
         arguments = self._arguments(tree)
         func_indent = re.findall('^(\s*)', lines[0])[0]
+        
+        
+        # NEW VERSION
+        lines_it = self.env.lines_following_cursor() 
+        first_line = next(lines_it)
+        lines.append(first_line)
+        
+        func_indent = re.findall('^(\s*)', first_line)[0]
+        expected_indent = ''.join([func_indent, env.python_indent])
+        
+        while True:
+            try:
+                last_row, line = next(lines_it)
+            except StopIteration as e:
+                break
+            # TODO save row_nr of the func (or class) signature 
+            if not self._is_correct_indent(line, expected_indent):
+                break
+                
+            lines.append(line)
+            # TODO finish
+                
 
+    def _is_correct_indent(self, line, indent):
+    """ Check whether given line has either given indentation (or more) 
+        or does contain only nithing or whitespaces
+    """
+        pass
+    
     # TODO: change, adding pass will go away
     def _is_valid(self, lines):
         func = ''.join([lines.lstrip(), '\n   pass'])
