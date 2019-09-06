@@ -120,8 +120,10 @@ class ObjectWithDocstring(abc.ABC):
 
     def _is_correct_indent(self, line, indent):
     """ Check whether given line has either given indentation (or more) 
-        or does contain only nithing or whitespaces
+        or does contain only nothing or whitespaces
     """
+        # TODO previous line ends with \
+        # comments do no have to be indented
         pass
     
     # TODO: change, adding pass will go away
