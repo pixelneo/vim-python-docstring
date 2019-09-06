@@ -90,25 +90,33 @@ class ObjectWithDocstring(abc.ABC):
         
         
         # NEW VERSION
+        lines = []
         lines_it = self.env.lines_following_cursor() 
         first_line = next(lines_it)
         lines.append(first_line)
         
         func_indent = re.findall('^(\s*)', first_line)[0]
         expected_indent = ''.join([func_indent, env.python_indent])
+        valid_sig = False
+        sig_line = 0
         
         while True:
             try:
                 last_row, line = next(lines_it)
             except StopIteration as e:
                 break
-            # TODO save row_nr of the func (or class) signature 
-            if not self._is_correct_indent(line, expected_indent):
+             
+            if valid_sig and not self._is_correct_indent(line, expected_indent):
                 break
-                
+               
             lines.append(line)
+            if not valid_sig:
+                data = ''.join(lines)
+                valid_sig, _ = self._is_valid(data)
+                sig_line = last_row
             # TODO finish
-                
+        data = ''.join(lines)
+        tree = ast.parse(tree)
 
     def _is_correct_indent(self, line, indent):
     """ Check whether given line has either given indentation (or more) 
