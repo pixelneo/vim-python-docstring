@@ -87,45 +87,61 @@ class ObjectWithDocstring(abc.ABC):
 
         arguments = self._arguments(tree)
         func_indent = re.findall('^(\s*)', lines[0])[0]
-        
-        
+
+
         # NEW VERSION
         lines = []
         lines_it = self.env.lines_following_cursor() 
         first_line = next(lines_it)
         lines.append(first_line)
-        
+
         func_indent = re.findall('^(\s*)', first_line)[0]
         expected_indent = ''.join([func_indent, env.python_indent])
         valid_sig = False
         sig_line = 0
-        
+
         while True:
             try:
                 last_row, line = next(lines_it)
             except StopIteration as e:
                 break
-             
-            if valid_sig and not self._is_correct_indent(line, expected_indent):
+
+            if valid_sig and not self._is_correct_indent(lines[-1], line, expected_indent):
                 break
-               
+
             lines.append(line)
             if not valid_sig:
                 data = ''.join(lines)
                 valid_sig, _ = self._is_valid(data)
                 sig_line = last_row
             # TODO finish
-        data = ''.join(lines)
-        tree = ast.parse(tree)
 
-    def _is_correct_indent(self, line, indent):
-    """ Check whether given line has either given indentation (or more) 
-        or does contain only nothing or whitespaces
-    """
-        # TODO previous line ends with \
-        # comments do no have to be indented
-        pass
-    
+        # remove func_indent from the beginning of all lines 
+        data = ''.join([re.sub('^'+func_indent, '', l) for l in lines])
+        try:
+            tree = ast.parse(tree)
+        except Exception as e:
+            raise InvalidSyntax('Object has invalid syntax.')
+
+    def _is_correct_indent(self, previous_line, line, expected_indent):
+        """ Check whether given line has either given indentation (or more) 
+            or does contain only nothing or whitespaces.
+        """
+        # Disclaimer: I know this does not check for multiline comments and strings
+        # strings ''' <newline> ...<newline>..''' are a problem !!!
+        if re.match('^'+expected_indent, line):
+            return True
+        elif re.match('^\s*#', line):
+            return True
+        elif re.match('^\s*["\']{3}', line):
+            return True
+        elif re.match('.*\\$', previous_line):
+            return True
+
+        return False
+
+
+
     # TODO: change, adding pass will go away
     def _is_valid(self, lines):
         func = ''.join([lines.lstrip(), '\n   pass'])
