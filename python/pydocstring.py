@@ -142,9 +142,11 @@ class MethodController(ObjectWithDocstring):
 
     def _raises(self, tree):
         """ Return what exceptions does the method raises """
+        # traverse tree for all exceptions
         pass
 
-    def _returns(self, tree):
+    def _returns_or_yields(self, tree):
+        """ Method either does not yield or return or it yields or it returns (or both???) """
         pass
 
     def _arguments(self, tree):
@@ -157,14 +159,6 @@ class MethodController(ObjectWithDocstring):
             return args
         except SyntaxError as e:
             raise InvalidSyntax('The method has invalid syntax.')
-
-    def _is_valid(self, lines):
-        func = ''.join([lines.lstrip(), '\n   pass'])
-        try:
-            tree = ast.parse(func)
-            return True, tree
-        except SyntaxError as e:
-            return False, None
 
 
 class ClassController(ObjectWithDocstring):
