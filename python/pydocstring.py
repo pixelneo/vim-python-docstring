@@ -68,30 +68,10 @@ class ObjectWithDocstring(abc.ABC):
         Writes the docstring to correct lines in `self.env` object.
         """
 
-    def _whole_string(self):
+    def _object_tree(self):
         """ Get the source code of the object under cursor. """
         lines = []
-        valid = False
         lines_it = self.env.lines_following_cursor()
-        counter = 0
-        while not valid:
-            try:
-                last_row, line = next(lines_it)
-            except StopIteration as e:
-                pass # TODO do something (is_valid?)
-
-            lines.append(line)
-            data = ''.join(lines)
-            valid, tree = self._is_valid(data)
-            counter += 1
-
-        arguments = self._arguments(tree)
-        func_indent = re.findall('^(\s*)', lines[0])[0]
-
-
-        # NEW VERSION
-        lines = []
-        lines_it = self.env.lines_following_cursor() 
         first_line = next(lines_it)
         lines.append(first_line)
 
@@ -123,6 +103,8 @@ class ObjectWithDocstring(abc.ABC):
         except Exception as e:
             raise InvalidSyntax('Object has invalid syntax.')
 
+        return sig_line, func_indent, tree
+
     def _is_correct_indent(self, previous_line, line, expected_indent):
         """ Check whether given line has either given indentation (or more) 
             or does contain only nothing or whitespaces.
@@ -141,21 +123,6 @@ class ObjectWithDocstring(abc.ABC):
         return False
 
 
-
-    # TODO: change, adding pass will go away
-    def _is_valid(self, lines):
-        func = ''.join([lines.lstrip(), '\n   pass'])
-        try:
-            tree = ast.parse(func)
-            return True, tree
-        except SyntaxError as e:
-            return False, None
-
-
-
-
-
-
 class MethodController(ObjectWithDocstring):
 
     def __init__(self, env, templater, max_lines=30, style='google'):
@@ -163,29 +130,21 @@ class MethodController(ObjectWithDocstring):
 
     # TODO: set cursor on appropriate position to fill the docstring
     def write_docstring(self):
-        last_row, func_indent, args = self._method_data()
+        sig_line, func_indent, tree = self._object_tree()
+        args = self._arguments(tree)
+        #TODO
+        # raises = #what it raises
+        # returns = #does it return?
+
         docstring = self.templater.get_template(func_indent, args)
         self.env.append_after_line(last_row, docstring)
 
-    def _method_data(self):
-        lines = []
-        valid = False
-        lines_it = self.env.lines_following_cursor()
-        counter = 0
-        while not valid:
-            if counter == self.max_lines:
-                raise InvalidSyntax(
-                    'The method either invalid or it is on > {} lines.'.format(str(self.max_lines)))
-            last_row, line = next(lines_it)
-            lines.append(line)
-            data = ''.join(lines)
-            valid, tree = self._is_valid(data)
-            counter += 1
+    def _raises(self, tree):
+        """ Return what exceptions does the method raises """
+        pass
 
-        arguments = self._arguments(tree)
-        func_indent = re.findall('^(\s*)', lines[0])[0]
-
-        return last_row, func_indent, arguments
+    def _returns(self, tree):
+        pass
 
     def _arguments(self, tree):
         try:
@@ -206,6 +165,7 @@ class MethodController(ObjectWithDocstring):
         except SyntaxError as e:
             return False, None
 
+
 class ClassController(ObjectWithDocstring):
 
     def __init__(self, env, templater, max_lines=30, style='google'):
@@ -216,7 +176,8 @@ class ClassController(ObjectWithDocstring):
         docstring = self.templater.get_template(func_indent, args)
         self.env.append_after_line(last_row, docstring)
 
-
+    def _attributes(self, tree):
+        pass
 
 
 # Unused

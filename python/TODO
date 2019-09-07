@@ -1,0 +1,6 @@
+# TODO
+- separate template for class and method
+- class Templater should not substitute unfound atributes, returns, raises
+- make option to print simples docstring: one-liner, classic without the intro
+- implement _attributes, _raises, _returns ... generally traversing the tree
+
