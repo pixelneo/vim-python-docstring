@@ -135,6 +135,7 @@ class MethodController(ObjectWithDocstring):
         #TODO
         # raises = #what it raises
         # returns = #does it return?
+        # yields = # does it yield
 
         docstring = self.templater.get_template(func_indent, args)
         self.env.append_after_line(last_row, docstring)
