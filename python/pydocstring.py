@@ -67,6 +67,7 @@ class ObjectWithDocstring(abc.ABC):
 
         Writes the docstring to correct lines in `self.env` object.
         """
+        pass
 
     def _object_tree(self):
         """ Get the source code of the object under cursor. """
@@ -122,11 +123,29 @@ class ObjectWithDocstring(abc.ABC):
 
         return False
 
+    @abc.abstractmethod
+    def _process_node(self, node):
+        """ This should process each node in ast,
+            extracting usefull node types. """
+        pass
+
+    def _walk_the_tree(self, tree):
+        for node in tree.walk():
+            self._process_node(node)
+
 
 class MethodController(ObjectWithDocstring):
 
     def __init__(self, env, templater, max_lines=30, style='google'):
         super().__init__(env, templater, max_lines, style)
+        self.arguments = []
+        self.raises = []
+        self.returns = False
+        self.yields = False
+
+    def _process_node(self, node):
+        if isinstance(node, 
+
 
     # TODO: set cursor on appropriate position to fill the docstring
     def write_docstring(self):
@@ -165,6 +184,7 @@ class ClassController(ObjectWithDocstring):
 
     def __init__(self, env, templater, max_lines=30, style='google'):
         super().__init__(env, templater, max_lines, style)
+        self.attributes = []
 
     def write_docstring(self):
         last_row, func_indent, args = self._method_data()
