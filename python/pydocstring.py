@@ -7,6 +7,7 @@ import abc
 
 from vimenv import *
 from utils import ObjectType
+from asthelper import ClassVisitor, MethodVisitor
 
 
 class InvalidSyntax(Exception):
