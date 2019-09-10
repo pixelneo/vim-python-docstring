@@ -33,7 +33,7 @@ class Templater:
             raises=raises, returns=returns, yields=yields)
         lines = []
         for line in docstring.split('\n'):
-            lines.append(''.join([method_indent, line]))
+            lines.append(''.join([method_indent, self.indent, line]))
 
         return ''.join(lines)
 
@@ -43,7 +43,7 @@ class Templater:
         docstring = template.render(indent=self.indent, attr=attr)
         lines = []
         for line in docstring.split('\n'):
-            lines.append(''.join([class_indent, line]))
+            lines.append(''.join([class_indent, self.indent, line]))
 
         return ''.join(lines)
 

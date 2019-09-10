@@ -54,7 +54,7 @@ class MethodVisitor(ast.NodeVisitor):
     def visit_Raise(self, node):
         r = NameCollector()
         r.visit(node)
-        self.raises |= r.data  #TODO this does not work
+        self.raises |= r.data
         super().generic_visit(node)
 
     def visit_Yield(self, node):
@@ -69,7 +69,7 @@ class MethodVisitor(ast.NodeVisitor):
         new_visitor = MethodVisitor(parent=False)
         new_visitor.generic_visit(node)
         self.raises |= new_visitor.raises
-        # TODO tohle je blbe
+
         if self.parent:
             for arg in node.args.args:
                 self.arguments.append(arg.arg)
