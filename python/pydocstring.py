@@ -5,6 +5,8 @@ import os
 import ast
 import abc
 
+import ibis
+
 from vimenv import *
 from utils import ObjectType
 from asthelper import ClassVisitor, MethodVisitor, ClassInstanceNameExtract
@@ -22,36 +24,27 @@ class Templater:
     def __init__(self, location, indent, style='google'):
         self.style = 'google'
         self.indent = indent
-        with open(os.path.join(location, '..', 'styles/{}.txt'.format(self.style)), 'r') as f:
-            self.template = Template(f.read())
 
-    def _substitute_list(self, list_name, template, list_):
-        result_lines = []
-        for line in template.split('\n'):
-            match = re.match('#(\w+):\{(.*)\}', line)
-            if match:
-                list_to_substitute, old_line = match.groups()
-                if list_to_substitute == list_name:
-                    new_lines = []
-                    for item in list_:
-                        new_line = re.sub('(\$\w+)', item, old_line)
-                        new_line = bytes(
-                            new_line, 'utf-8').decode('unicode_escape')
-                        new_lines.append(new_line)
-                    result_lines.append(''.join(new_lines))
-            else:
-                result_lines.append(line)
-        return '\n'.join(result_lines)
+    def get_method_docstring(self, method_indent, args, raises, returns, yields):
+        with open(os.path.join(location, '..', 'styles/{}-{}.txt'.format(self.style, 'method')), 'r') as f:
+            self.template = ibis.Template(f.read())
+        docstring = template.render(indent=self.indent, args=items,
+            raises=raises, returns=returns, yields=yields)
+        lines = []
+        for line in docstring.split('\n'):
+            lines.append(''.join([method_indent, line]))
 
-    def get_template(self, funcdef_indent, arguments):
-        list_not_sub = self.template.safe_substitute(
-            i=funcdef_indent,
-            i2=self.indent
-        )
-        # TODO: raises
-        args_done = self._substitute_list('args', list_not_sub, arguments)
-        raises_done = self._substitute_list('raises', args_done, raises)
-        return raises_done
+        return ''.join(lines)
+
+    def get_class_docstring(self, class_indent, attr):
+        with open(os.path.join(location, '..', 'styles/{}-{}.txt'.format(self.style, 'class')), 'r') as f:
+            self.template = ibis.Template(f.read())
+        docstring = template.render(indent=self.indent, attr=attr)
+        lines = []
+        for line in docstring.split('\n'):
+            lines.append(''.join([class_indent, line]))
+
+        return ''.join(lines)
 
 
 class ObjectWithDocstring(abc.ABC):
