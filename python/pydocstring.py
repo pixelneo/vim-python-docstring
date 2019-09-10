@@ -7,7 +7,7 @@ import abc
 
 from vimenv import *
 from utils import ObjectType
-from asthelper import ClassVisitor, MethodVisitor
+from asthelper import ClassVisitor, MethodVisitor, ClassInstanceNameExtract
 
 
 class InvalidSyntax(Exception):
@@ -124,50 +124,22 @@ class ObjectWithDocstring(abc.ABC):
 
         return False
 
-    @abc.abstractmethod
-    def _process_node(self, node):
-        """ This should process each node in ast,
-            extracting usefull node types. """
-        pass
-
-    def _walk_the_tree(self, tree):
-        for node in tree.walk():
-            self._process_node(node)
-
 
 class MethodController(ObjectWithDocstring):
 
     def __init__(self, env, templater, max_lines=30, style='google'):
         super().__init__(env, templater, max_lines, style)
-        self.arguments = []
-        self.raises = []
-        self.returns = False
-        self.yields = False
 
-    def _process_node(self, node):
-        if isinstance(node, 
-
+    def _process_tree(self, tree):
+        self.visitor = MethodVisitor().visit(tree)
 
     # TODO: set cursor on appropriate position to fill the docstring
     def write_docstring(self):
         sig_line, func_indent, tree = self._object_tree()
         args = self._arguments(tree)
-        #TODO
-        # raises = #what it raises
-        # returns = #does it return?
-        # yields = # does it yield
-
         docstring = self.templater.get_template(func_indent, args)
         self.env.append_after_line(last_row, docstring)
 
-    def _raises(self, tree):
-        """ Return what exceptions does the method raises """
-        # traverse tree for all exceptions
-        pass
-
-    def _returns_or_yields(self, tree):
-        """ Method either does not yield or return or it yields or it returns (or both???) """
-        pass
 
     def _arguments(self, tree):
         try:
@@ -185,15 +157,15 @@ class ClassController(ObjectWithDocstring):
 
     def __init__(self, env, templater, max_lines=30, style='google'):
         super().__init__(env, templater, max_lines, style)
-        self.attributes = []
+
+    def _process_tree(self, tree):
+        x = ClassInstanceNameExtract().visit(tree)
+        self.visitor = ClassVisitor(x.instance_name).visit(tree)
 
     def write_docstring(self):
         last_row, func_indent, args = self._method_data()
         docstring = self.templater.get_template(func_indent, args)
         self.env.append_after_line(last_row, docstring)
-
-    def _attributes(self, tree):
-        pass
 
 
 # Unused
