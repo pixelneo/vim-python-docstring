@@ -1,0 +1,7 @@
+"""
+{% if attr|len > 0 %}
+Attributes
+----------
+{% for a in attr %}{{indent}}{{a}} :
+{% endfor %}{% endif %}
+"""
