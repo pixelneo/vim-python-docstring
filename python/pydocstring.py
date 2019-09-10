@@ -24,9 +24,10 @@ class Templater:
     def __init__(self, location, indent, style='google'):
         self.style = 'google'
         self.indent = indent
+        self.location = location
 
-    def get_method_docstring(self, method_indent, args, raises, returns, yields):
-        with open(os.path.join(location, '..', 'styles/{}-{}.txt'.format(self.style, 'method')), 'r') as f:
+    def get_method_docstring(self, method_indent, args, returns, yields, raises):
+        with open(os.path.join(self.location, '..', 'styles/{}-{}.txt'.format(self.style, 'method')), 'r') as f:
             self.template = ibis.Template(f.read())
         docstring = template.render(indent=self.indent, args=items,
             raises=raises, returns=returns, yields=yields)
@@ -37,7 +38,7 @@ class Templater:
         return ''.join(lines)
 
     def get_class_docstring(self, class_indent, attr):
-        with open(os.path.join(location, '..', 'styles/{}-{}.txt'.format(self.style, 'class')), 'r') as f:
+        with open(os.path.join(self.location, '..', 'styles/{}-{}.txt'.format(self.style, 'class')), 'r') as f:
             self.template = ibis.Template(f.read())
         docstring = template.render(indent=self.indent, attr=attr)
         lines = []
@@ -49,9 +50,8 @@ class Templater:
 
 class ObjectWithDocstring(abc.ABC):
 
-    def __init__(self, env, templater, max_lines=30, style='google'):
+    def __init__(self, env, templater, style='google'):
         self.starting_line = env.current_line_nr
-        self.max_lines = max_lines
         self.env = env
         self.templater = templater
 
@@ -120,18 +120,19 @@ class ObjectWithDocstring(abc.ABC):
 
 class MethodController(ObjectWithDocstring):
 
-    def __init__(self, env, templater, max_lines=30, style='google'):
-        super().__init__(env, templater, max_lines, style)
+    def __init__(self, env, templater, style='google'):
+        super().__init__(env, templater, style)
 
     def _process_tree(self, tree):
-        self.visitor = MethodVisitor().visit(tree)
+        v = MethodVisitor().visit(tree)
+        return v.arguments, v.returns, v.yields, v.raises
 
     # TODO: set cursor on appropriate position to fill the docstring
     def write_docstring(self):
-        sig_line, func_indent, tree = self._object_tree()
-        args = self._arguments(tree)
-        docstring = self.templater.get_template(func_indent, args)
-        self.env.append_after_line(last_row, docstring)
+        sig_line, method_indent, tree = self._object_tree()
+        args, returns, yields, raises = self._process_tree(tree)
+        docstring = self.templater.get_method_docstring(method_indent, args, returns, yields, raises)
+        self.env.append_after_line(sig_line, docstring)
 
 
     def _arguments(self, tree):
@@ -148,17 +149,19 @@ class MethodController(ObjectWithDocstring):
 
 class ClassController(ObjectWithDocstring):
 
-    def __init__(self, env, templater, max_lines=30, style='google'):
-        super().__init__(env, templater, max_lines, style)
+    def __init__(self, env, templater, style='google'):
+        super().__init__(env, templater, style)
 
     def _process_tree(self, tree):
         x = ClassInstanceNameExtract().visit(tree)
-        self.visitor = ClassVisitor(x.instance_name).visit(tree)
+        v = ClassVisitor(x.instance_name).visit(tree)
+        return v.attributes
 
     def write_docstring(self):
-        last_row, func_indent, args = self._method_data()
-        docstring = self.templater.get_template(func_indent, args)
-        self.env.append_after_line(last_row, docstring)
+        sig_line, class_indent, tree = self._object_tree()
+        attr = self._process_tree(tree)
+        docstring = self.templater.get_class_docstring(class_indent, attr)
+        self.env.append_after_line(sig_line, docstring)
 
 
 # Unused
