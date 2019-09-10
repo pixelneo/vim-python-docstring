@@ -1,0 +1,15 @@
+"""
+{% if args|len > 0 %}
+Args:
+{% for a in args %}{{indent}}{{a}}:
+{% endfor %}{% endif %}{% if returns %}
+Returns:
+{{indent}}
+{% endif %}{% if yields %}
+Yields:
+{{indent}}
+{% endif %}{% if raises|len > 0 %}
+Raises:
+{% for a in raises %}{{indent}}{{a}}:
+{% endfor %}{% endif %}
+"""
