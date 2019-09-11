@@ -23,6 +23,8 @@ class ClassInstanceNameExtractor(ast.NodeVisitor):
         if node.name == '__init__':
             self.instance_name = node.args.args[0].arg
             self.set = True
+        elif not self.set:
+            self.instance_name = node.args.args[0].arg
 
     def generic_visit(self, node):
         if not self.set:
