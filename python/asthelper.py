@@ -36,11 +36,11 @@ class ClassVisitor(ast.NodeVisitor):
         self.instance_name = instance_name
 
     def visit_Attribute(self, node):
-        try:
+        if isinstance(node.value, ast.Name):
             if node.value.id == self.instance_name:
                 self.attributes.add(node.attr)
-        except Exception as e:
-            pass
+        else:
+            self.generic_visit(node)
 
 
 class MethodVisitor(ast.NodeVisitor):

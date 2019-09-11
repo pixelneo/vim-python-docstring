@@ -13,14 +13,17 @@ from asthelper import ClassVisitor, MethodVisitor, ClassInstanceNameExtractor
 
 
 class InvalidSyntax(Exception):
+    """ Raise when the syntax of processed object is invalid. """
     pass
 
 
 class DocstringUnavailable(Exception):
+    """ Raise when trying to process object to which there is no docstring. """
     pass
 
 
 class Templater:
+
     def __init__(self, location, indent, style='google'):
         self.style = style
         self.indent = indent
@@ -88,8 +91,8 @@ class ObjectWithDocstring(abc.ABC):
 
         lines.append(first_line)
 
-        func_indent = re.findall('^(\s*)', first_line)[0]
-        expected_indent = concat_(func_indent, self.env.python_indent)
+        obj_indent = re.findall('^(\s*)', first_line)[0]
+        expected_indent = concat_(obj_indent, self.env.python_indent)
 
         valid_sig, _ = self._is_valid(first_line)
 
@@ -107,14 +110,14 @@ class ObjectWithDocstring(abc.ABC):
                 valid_sig, _ = self._is_valid(data)
                 sig_line = last_row
 
-        # remove func_indent from the beginning of all lines
-        data = '\n'.join([re.sub('^'+func_indent, '', l) for l in lines])
+        # remove obj_indent from the beginning of all lines
+        data = '\n'.join([re.sub('^'+obj_indent, '', l) for l in lines])
         try:
             tree = ast.parse(data)
         except Exception as e:
             raise InvalidSyntax('Object has invalid syntax.')
 
-        return sig_line, func_indent, tree
+        return sig_line, obj_indent, tree
 
     def _is_correct_indent(self, previous_line, line, expected_indent):
         """ Check whether given line has either given indentation (or more) 
