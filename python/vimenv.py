@@ -1,9 +1,6 @@
 import vim
 import abc
 
-from utils import ObjectType
-
-
 class Enviroment(abc.ABC):
 
     @property

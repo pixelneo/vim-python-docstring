@@ -12,6 +12,10 @@ sys.path[0:0] = deps
 import pydocstring
 EOF
 
-function! vimpythondocstring#DocstringCall()
-    python3 pydocstring.full_docstring()
+function! vimpythondocstring#Full()
+    python3 pydocstring.Docstring().full_docstring()
+endfunction
+
+function! vimpythondocstring#Oneline()
+    python3 pydocstring.Docstring().oneline_docstring()
 endfunction

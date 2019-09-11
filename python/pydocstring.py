@@ -7,8 +7,8 @@ import abc
 
 import ibis
 
+from utils import *
 from vimenv import *
-from utils import ObjectType
 from asthelper import ClassVisitor, MethodVisitor, ClassInstanceNameExtractor
 
 
@@ -30,7 +30,7 @@ class Templater:
         lines = []
         for line in docstring.split('\n'):
             if re.match('.', line):
-                line = ''.join([obj_indent, self.indent, line])
+                line = concat_(obj_indent, self.indent, line)
             lines.append(line)
 
         return '\n'.join(lines)
@@ -46,7 +46,7 @@ class Templater:
         with open(os.path.join(self.location, '..', 'styles/{}-{}.txt'.format(self.style, 'class')), 'r') as f:
             self.template = ibis.Template(f.read())
         docstring = self.template.render(indent=self.indent, attr=attr)
-        return self._docstring_helper(method_indent, docstring)
+        return self._docstring_helper(class_indent, docstring)
 
 
 class ObjectWithDocstring(abc.ABC):
@@ -89,7 +89,7 @@ class ObjectWithDocstring(abc.ABC):
         lines.append(first_line)
 
         func_indent = re.findall('^(\s*)', first_line)[0]
-        expected_indent = ''.join([func_indent, self.env.python_indent])
+        expected_indent = concat_(func_indent, self.env.python_indent)
 
         valid_sig, _ = self._is_valid(first_line)
 
@@ -136,16 +136,16 @@ class ObjectWithDocstring(abc.ABC):
         return False
 
     def _is_valid(self, lines):
-        func = ''.join([lines.lstrip(), '\n   pass'])
+        func = concat_(lines.lstrip(), '\n   pass')
         try:
             tree = ast.parse(func)
             return True, tree
         except SyntaxError as e:
             return False, None
 
-    def write_simple_docstring(self, text):
+    def write_simple_docstring(self):
         sig_line, indent = self._get_sig()
-        docstring = ''.join([indent, self.templater.indent, '""" ', text, ' """'])
+        docstring = concat(indent, self.templater.indent, '"""  """')
         self.env.append_after_line(sig_line, docstring)
 
 class MethodController(ObjectWithDocstring):
@@ -197,30 +197,35 @@ class ClassController(ObjectWithDocstring):
         self.env.append_after_line(sig_line, docstring)
 
 
-def _controller_factory(env, templater, style):
-    line = env.current_line
-    first_word = re.match('^\s*(\w+).*', line).groups()[0]
-    if first_word == 'def':
-        return MethodController(env, templater, style=style)
-    elif first_word == 'class':
-        return ClassController(env, templater, style=style)
-    else:
-        raise DocstringUnavailable('Docstring cannot be created for selected object')
 
+class Docstring:
 
-def full_docstring():
-    env = VimEnviroment()
-    style = env.python_style
-    indent = env.python_indent
-    location = env.plugin_root_dir
+    def __init__(self):
+        env = VimEnviroment()
+        style = env.python_style
+        indent = env.python_indent
+        location = env.plugin_root_dir
+        templater = Templater(location, indent, style)
 
-    templater = Templater(location, indent, style)
-    obj = _controller_factory(env, templater, style)
-    obj.write_docstring()
+        self.obj_controller = self._controller_factory(env, templater, style)
 
-def oneline_docstring():
-    env = VimEnviroment()
-    indent = env.python_indent
-    location = env.plugin_root_dir
+    def _controller_factory(self, env, templater, style):
+        line = env.current_line
+        first_word = re.match('^\s*(\w+).*', line).groups()[0]
+        if first_word == 'def':
+            return MethodController(env, templater, style=style)
+        elif first_word == 'class':
+            return ClassController(env, templater, style=style)
+        else:
+            raise DocstringUnavailable('Docstring cannot be created for selected object')
 
-
+    def full_docstring(self):
+        try:
+            self.obj_controller.write_docstring()
+        except Exception as e:
+            print(concat_('Doctring ERROR: ', e))
+    def oneline_docstring(self):
+        try:
+            self.obj_controller.write_simple_docstring()
+        except Exception as e:
+            print(concat_('Doctring ERROR: ', e))
