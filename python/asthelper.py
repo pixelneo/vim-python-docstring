@@ -24,7 +24,7 @@ class ClassInstanceNameExtractor(ast.NodeVisitor):
 
     def generic_visit(self, node):
         if not self.set:
-            self.generic_visit(node)
+            super().generic_visit(node)
 
 
 class ClassVisitor(ast.NodeVisitor):
@@ -37,7 +37,6 @@ class ClassVisitor(ast.NodeVisitor):
         try:
             if node.value.id == self.instance_name:
                 self.attributes.add(node.attr)
-                print(node.attr)
         except Exception as e:
             pass
 

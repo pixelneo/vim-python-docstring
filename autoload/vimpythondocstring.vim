@@ -13,5 +13,5 @@ import pydocstring
 EOF
 
 function! vimpythondocstring#DocstringCall()
-    python3 pydocstring.final_call()
+    python3 pydocstring.full_docstring()
 endfunction

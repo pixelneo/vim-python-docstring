@@ -46,7 +46,7 @@ class Templater:
         lines = []
         for line in docstring.split('\n'):
             if re.match('.', line):
-                line = ''.join([method_indent, self.indent, line])
+                line = ''.join([class_indent, self.indent, line])
             lines.append(line)
 
         return '\n'.join(lines)
@@ -78,7 +78,7 @@ class ObjectWithDocstring(abc.ABC):
         func_indent = re.findall('^(\s*)', first_line)[0]
         expected_indent = ''.join([func_indent, self.env.python_indent])
 
-        valid_sig = self._is_valid(first_line)
+        valid_sig, _ = self._is_valid(first_line)
 
         while True:
             try:
@@ -117,7 +117,7 @@ class ObjectWithDocstring(abc.ABC):
             return True
         elif re.match('.*\\$', previous_line):
             return True
-        elif re.match('^&', line):
+        elif re.match('^\s*$', line):
             return True
 
         return False
@@ -166,7 +166,7 @@ class ClassController(ObjectWithDocstring):
         super().__init__(env, templater, style)
 
     def _process_tree(self, tree):
-        x = ClassInstanceNameExtract()
+        x = ClassInstanceNameExtractor()
         x.visit(tree)
         v = ClassVisitor(x.instance_name)
         v.visit(tree)
@@ -179,37 +179,25 @@ class ClassController(ObjectWithDocstring):
         self.env.append_after_line(sig_line, docstring)
 
 
-# Unused
-class MethodDocGenerator:
-    def __init__(self, templater, env, style):
-        self.object = self._create_object_controller(env, templater, style)
-
-    def _create_object_controller(self, env, templater, style):
-        line = self.env.current_line
-        first_word = re.match('^\s*(\w+).*', line).groups()[0]
-        if first_word == 'def':
-            return MethodController(env, templater, style=style)
-        elif first_word == 'class':
-            return ClassController(env, templater, style=style)
-        else:
-            raise DocstringUnavailable('Docstring cannot be created for selected object')
+def _controller_factory(env, templater, style):
+    line = env.current_line
+    first_word = re.match('^\s*(\w+).*', line).groups()[0]
+    if first_word == 'def':
+        return MethodController(env, templater, style=style)
+    elif first_word == 'class':
+        return ClassController(env, templater, style=style)
+    else:
+        raise DocstringUnavailable('Docstring cannot be created for selected object')
 
 
-    def new_docstring(self):  # generates new docstring no matter what
-        pass
-
-    def get_doctring(self, context):  # perform suitable docstring action
-        pass
-
-
-def final_call():
+def full_docstring():
     env = VimEnviroment()
     style = env.python_style
     indent = env.python_indent
     location = env.plugin_root_dir
 
     templater = Templater(location, indent, style)
-    method = MethodController(env, templater)
-    method.write_docstring()
+    obj = _controller_factory(env, templater, style)
+    obj.write_docstring()
 
 
