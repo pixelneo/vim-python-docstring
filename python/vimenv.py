@@ -52,10 +52,10 @@ class Enviroment(abc.ABC):
     def lines_following_cursor(self):
         """ Generator that iterates lines in buffer, starting from current line. """
 
-    #TODO will this work???
-    @abc.abstractmethod
-    def lines_till_end(self):
-        """ Returns all lines from the current one until the end. """
+    # #TODO will this work???
+    # @abc.abstractmethod
+    # def lines_till_end(self):
+        # """ Returns all lines from the current one until the end. """
 
 class VimEnviroment(Enviroment):
 

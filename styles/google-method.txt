@@ -10,6 +10,5 @@ Yields:
 {{indent}}
 {% endif %}{% if raises|len > 0 %}
 Raises:
-{% for a in raises %}{{indent}}{{a}}:
-{% endfor %}{% endif %}
+{% for a in raises %}{{indent}}{{a}}:{% endfor %}{% endif %}
 """

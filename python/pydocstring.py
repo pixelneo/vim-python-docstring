@@ -9,7 +9,7 @@ import ibis
 
 from vimenv import *
 from utils import ObjectType
-from asthelper import ClassVisitor, MethodVisitor, ClassInstanceNameExtract
+from asthelper import ClassVisitor, MethodVisitor, ClassInstanceNameExtractor
 
 
 class InvalidSyntax(Exception):
@@ -29,23 +29,27 @@ class Templater:
     def get_method_docstring(self, method_indent, args, returns, yields, raises):
         with open(os.path.join(self.location, '..', 'styles/{}-{}.txt'.format(self.style, 'method')), 'r') as f:
             self.template = ibis.Template(f.read())
-        docstring = template.render(indent=self.indent, args=items,
+        docstring = self.template.render(indent=self.indent, args=args,
             raises=raises, returns=returns, yields=yields)
         lines = []
         for line in docstring.split('\n'):
-            lines.append(''.join([method_indent, self.indent, line]))
+            if re.match('.', line):
+                line = ''.join([method_indent, self.indent, line])
+            lines.append(line)
 
-        return ''.join(lines)
+        return '\n'.join(lines)
 
     def get_class_docstring(self, class_indent, attr):
         with open(os.path.join(self.location, '..', 'styles/{}-{}.txt'.format(self.style, 'class')), 'r') as f:
             self.template = ibis.Template(f.read())
-        docstring = template.render(indent=self.indent, attr=attr)
+        docstring = self.template.render(indent=self.indent, attr=attr)
         lines = []
         for line in docstring.split('\n'):
-            lines.append(''.join([class_indent, self.indent, line]))
+            if re.match('.', line):
+                line = ''.join([method_indent, self.indent, line])
+            lines.append(line)
 
-        return ''.join(lines)
+        return '\n'.join(lines)
 
 
 class ObjectWithDocstring(abc.ABC):
@@ -67,20 +71,20 @@ class ObjectWithDocstring(abc.ABC):
         """ Get the source code of the object under cursor. """
         lines = []
         lines_it = self.env.lines_following_cursor()
-        first_line = next(lines_it)
+        sig_line, first_line = next(lines_it)
+
         lines.append(first_line)
 
         func_indent = re.findall('^(\s*)', first_line)[0]
-        expected_indent = ''.join([func_indent, env.python_indent])
-        valid_sig = False
-        sig_line = 0
+        expected_indent = ''.join([func_indent, self.env.python_indent])
+
+        valid_sig = self._is_valid(first_line)
 
         while True:
             try:
                 last_row, line = next(lines_it)
             except StopIteration as e:
                 break
-
             if valid_sig and not self._is_correct_indent(lines[-1], line, expected_indent):
                 break
 
@@ -89,12 +93,11 @@ class ObjectWithDocstring(abc.ABC):
                 data = ''.join(lines)
                 valid_sig, _ = self._is_valid(data)
                 sig_line = last_row
-            # TODO finish
 
         # remove func_indent from the beginning of all lines 
-        data = ''.join([re.sub('^'+func_indent, '', l) for l in lines])
+        data = '\n'.join([re.sub('^'+func_indent, '', l) for l in lines])
         try:
-            tree = ast.parse(tree)
+            tree = ast.parse(data)
         except Exception as e:
             raise InvalidSyntax('Object has invalid syntax.')
 
@@ -114,9 +117,18 @@ class ObjectWithDocstring(abc.ABC):
             return True
         elif re.match('.*\\$', previous_line):
             return True
+        elif re.match('^&', line):
+            return True
 
         return False
 
+    def _is_valid(self, lines):
+        func = ''.join([lines.lstrip(), '\n   pass'])
+        try:
+            tree = ast.parse(func)
+            return True, tree
+        except SyntaxError as e:
+            return False, None
 
 class MethodController(ObjectWithDocstring):
 
@@ -124,7 +136,8 @@ class MethodController(ObjectWithDocstring):
         super().__init__(env, templater, style)
 
     def _process_tree(self, tree):
-        v = MethodVisitor().visit(tree)
+        v = MethodVisitor()
+        v.visit(tree)
         return v.arguments, v.returns, v.yields, v.raises
 
     # TODO: set cursor on appropriate position to fill the docstring
@@ -153,8 +166,10 @@ class ClassController(ObjectWithDocstring):
         super().__init__(env, templater, style)
 
     def _process_tree(self, tree):
-        x = ClassInstanceNameExtract().visit(tree)
-        v = ClassVisitor(x.instance_name).visit(tree)
+        x = ClassInstanceNameExtract()
+        x.visit(tree)
+        v = ClassVisitor(x.instance_name)
+        v.visit(tree)
         return v.attributes
 
     def write_docstring(self):
