@@ -22,34 +22,31 @@ class DocstringUnavailable(Exception):
 
 class Templater:
     def __init__(self, location, indent, style='google'):
-        self.style = 'google'
+        self.style = style
         self.indent = indent
         self.location = location
+
+    def _docstring_helper(self, obj_indent, docstring):
+        lines = []
+        for line in docstring.split('\n'):
+            if re.match('.', line):
+                line = ''.join([obj_indent, self.indent, line])
+            lines.append(line)
+
+        return '\n'.join(lines)
 
     def get_method_docstring(self, method_indent, args, returns, yields, raises):
         with open(os.path.join(self.location, '..', 'styles/{}-{}.txt'.format(self.style, 'method')), 'r') as f:
             self.template = ibis.Template(f.read())
         docstring = self.template.render(indent=self.indent, args=args,
             raises=raises, returns=returns, yields=yields)
-        lines = []
-        for line in docstring.split('\n'):
-            if re.match('.', line):
-                line = ''.join([method_indent, self.indent, line])
-            lines.append(line)
-
-        return '\n'.join(lines)
+        return self._docstring_helper(method_indent, docstring)
 
     def get_class_docstring(self, class_indent, attr):
         with open(os.path.join(self.location, '..', 'styles/{}-{}.txt'.format(self.style, 'class')), 'r') as f:
             self.template = ibis.Template(f.read())
         docstring = self.template.render(indent=self.indent, attr=attr)
-        lines = []
-        for line in docstring.split('\n'):
-            if re.match('.', line):
-                line = ''.join([class_indent, self.indent, line])
-            lines.append(line)
-
-        return '\n'.join(lines)
+        return self._docstring_helper(method_indent, docstring)
 
 
 class ObjectWithDocstring(abc.ABC):
@@ -66,6 +63,22 @@ class ObjectWithDocstring(abc.ABC):
         Writes the docstring to correct lines in `self.env` object.
         """
         pass
+
+    def _get_sig(self):
+        lines = []
+        lines_it = self.env.lines_following_cursor()
+        sig_line, first_line = next(lines_it)
+        indent = re.findall('^(\s*)', first_line)[0]
+
+        lines.append(first_line)
+
+        while not self._is_valid(''.join(lines)):
+            try:
+                sig_line, line = next(lines_it)
+            except StopIteration as e:
+                raise InvalidSyntax('Object does not have valid syntax')
+            lines.append(line)
+        return sig_line, indent
 
     def _object_tree(self):
         """ Get the source code of the object under cursor. """
@@ -129,6 +142,11 @@ class ObjectWithDocstring(abc.ABC):
             return True, tree
         except SyntaxError as e:
             return False, None
+
+    def write_simple_docstring(self, text):
+        sig_line, indent = self._get_sig()
+        docstring = ''.join([indent, self.templater.indent, '""" ', text, ' """'])
+        self.env.append_after_line(sig_line, docstring)
 
 class MethodController(ObjectWithDocstring):
 
@@ -199,5 +217,10 @@ def full_docstring():
     templater = Templater(location, indent, style)
     obj = _controller_factory(env, templater, style)
     obj.write_docstring()
+
+def oneline_docstring():
+    env = VimEnviroment()
+    indent = env.python_indent
+    location = env.plugin_root_dir
 
 
