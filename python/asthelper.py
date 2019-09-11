@@ -1,5 +1,6 @@
 import ast
 
+
 class NameCollector(ast.NodeVisitor):
 
     def __init__(self):
@@ -9,6 +10,7 @@ class NameCollector(ast.NodeVisitor):
     def visit_Name(self, node):
         self.data.add(node.id)
         super().generic_visit(node)
+
 
 class ClassInstanceNameExtractor(ast.NodeVisitor):
 
@@ -77,4 +79,3 @@ class MethodVisitor(ast.NodeVisitor):
 
             self.returns = new_visitor.returns
             self.yields = new_visitor.yields
-

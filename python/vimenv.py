@@ -1,6 +1,7 @@
 import vim
 import abc
 
+
 class Enviroment(abc.ABC):
 
     @property
@@ -53,6 +54,7 @@ class Enviroment(abc.ABC):
     # @abc.abstractmethod
     # def lines_till_end(self):
         # """ Returns all lines from the current one until the end. """
+
 
 class VimEnviroment(Enviroment):
 

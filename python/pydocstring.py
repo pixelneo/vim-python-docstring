@@ -39,7 +39,7 @@ class Templater:
         with open(os.path.join(self.location, '..', 'styles/{}-{}.txt'.format(self.style, 'method')), 'r') as f:
             self.template = ibis.Template(f.read())
         docstring = self.template.render(indent=self.indent, args=args,
-            raises=raises, returns=returns, yields=yields)
+                                         raises=raises, returns=returns, yields=yields)
         return self._docstring_helper(method_indent, docstring)
 
     def get_class_docstring(self, class_indent, attr):
@@ -107,7 +107,7 @@ class ObjectWithDocstring(abc.ABC):
                 valid_sig, _ = self._is_valid(data)
                 sig_line = last_row
 
-        # remove func_indent from the beginning of all lines 
+        # remove func_indent from the beginning of all lines
         data = '\n'.join([re.sub('^'+func_indent, '', l) for l in lines])
         try:
             tree = ast.parse(data)
@@ -148,6 +148,7 @@ class ObjectWithDocstring(abc.ABC):
         docstring = concat_(indent, self.templater.indent, '"""  """')
         self.env.append_after_line(sig_line, docstring)
 
+
 class MethodController(ObjectWithDocstring):
 
     def __init__(self, env, templater, style='google'):
@@ -162,9 +163,9 @@ class MethodController(ObjectWithDocstring):
     def write_docstring(self):
         sig_line, method_indent, tree = self._object_tree()
         args, returns, yields, raises = self._process_tree(tree)
-        docstring = self.templater.get_method_docstring(method_indent, args, returns, yields, raises)
+        docstring = self.templater.get_method_docstring(
+            method_indent, args, returns, yields, raises)
         self.env.append_after_line(sig_line, docstring)
-
 
     def _arguments(self, tree):
         try:
@@ -197,7 +198,6 @@ class ClassController(ObjectWithDocstring):
         self.env.append_after_line(sig_line, docstring)
 
 
-
 class Docstring:
 
     def __init__(self):
@@ -217,13 +217,15 @@ class Docstring:
         elif first_word == 'class':
             return ClassController(env, templater, style=style)
         else:
-            raise DocstringUnavailable('Docstring cannot be created for selected object')
+            raise DocstringUnavailable(
+                'Docstring cannot be created for selected object')
 
     def full_docstring(self):
         try:
             self.obj_controller.write_docstring()
         except Exception as e:
             print(concat_('Doctring ERROR: ', e))
+
     def oneline_docstring(self):
         try:
             self.obj_controller.write_simple_docstring()
