@@ -1,6 +1,5 @@
 # TODO
-- make option to print simples docstring: one-liner, classic without the intro
-- NOT - implement _attributes, _raises, _returns ... generally traversing the tree
+- DONE make option to print simples docstring: one-liner, classic without the intro
 
 - DONE - add epytext and numpy styles
 

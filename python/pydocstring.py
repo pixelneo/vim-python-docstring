@@ -145,7 +145,7 @@ class ObjectWithDocstring(abc.ABC):
 
     def write_simple_docstring(self):
         sig_line, indent = self._get_sig()
-        docstring = concat(indent, self.templater.indent, '"""  """')
+        docstring = concat_(indent, self.templater.indent, '"""  """')
         self.env.append_after_line(sig_line, docstring)
 
 class MethodController(ObjectWithDocstring):
