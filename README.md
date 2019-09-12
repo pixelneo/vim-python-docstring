@@ -41,3 +41,5 @@ Pull requests are welcome as are feature request and issue reports.
 You can encounter some situations in which the plugin may not work as expected.
 Most notably there *may* be issues if your keyword for refering to instance is not `self` -- in such case it *may* be added to the list of arguments.
 
+There are [more unsolved issues](ISSUES.md).
+
