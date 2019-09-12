@@ -4,12 +4,27 @@ import ast
 class NameCollector(ast.NodeVisitor):
 
     def __init__(self):
-        super().__init__()
         self.data = set()
+        super().__init__()
 
     def visit_Name(self, node):
         self.data.add(node.id)
         super().generic_visit(node)
+
+
+class AttributeCollector(ast.NodeVisitor):
+
+    def __init__(self, instance_name):
+        self.instance_name = instance_name
+        self.data = set()
+        super().__init__()
+
+    def visit_Attribute(self, node):
+        if isinstance(node.value, ast.Name):
+            if node.value.id == self.instance_name:
+                self.data.add(node.attr)
+        else:
+            self.generic_visit(node)
 
 
 class ClassInstanceNameExtractor(ast.NodeVisitor):
@@ -37,12 +52,11 @@ class ClassVisitor(ast.NodeVisitor):
         self.attributes = set()
         self.instance_name = instance_name
 
-    def visit_Attribute(self, node):
-        if isinstance(node.value, ast.Name):
-            if node.value.id == self.instance_name:
-                self.attributes.add(node.attr)
-        else:
-            self.generic_visit(node)
+    def visit_Assign(self, node):
+        ac = AttributeCollector(self.instance_name)
+        for target in node.targets:
+            ac.visit(node)
+        self.attributes |= ac.data
 
 
 class MethodVisitor(ast.NodeVisitor):

@@ -160,7 +160,11 @@ class MethodController(ObjectWithDocstring):
     def _process_tree(self, tree):
         v = MethodVisitor()
         v.visit(tree)
-        return v.arguments, v.returns, v.yields, v.raises
+        args = list(v.arguments)
+        args.sort()
+        raises = list(v.raises)
+        raises.sort()
+        return args, v.returns, v.yields, raises
 
     # TODO: set cursor on appropriate position to fill the docstring
     def write_docstring(self):
@@ -192,7 +196,9 @@ class ClassController(ObjectWithDocstring):
         x.visit(tree)
         v = ClassVisitor(x.instance_name)
         v.visit(tree)
-        return v.attributes
+        att = list(v.attributes)
+        att.sort()
+        return att
 
     def write_docstring(self):
         sig_line, class_indent, tree = self._object_tree()
