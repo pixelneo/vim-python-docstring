@@ -6,6 +6,8 @@ Docstrings for methods will contain a **list of arguments**, **list of raised ex
 
 Class docstring will have a **list of atributes**. 
 
+![usage](https://media.giphy.com/media/SUtkPJMUd75Vm1UIxG/giphy.gif)
+
 It uses Python's [ast](https://docs.python.org/3/library/ast.html) library for parsing code. 
 This makes it quite **robust** solution, which can handle function signature such as 
 
@@ -24,8 +26,6 @@ Alternatively if you have Vim 8 and newer, you can clone this repository into `~
 
 ## Usage
 The plugin has only commands which you can map however you like (i use `<leader>ss` for `:Docstring`).
-
-![usage](https://media.giphy.com/media/SUtkPJMUd75Vm1UIxG/giphy.gif)
 
 1. Place cursor at the first line of the object (`def ...` of `class ...`) for which you want to create a docstring
 2. Then type `:Docstring` or different command
