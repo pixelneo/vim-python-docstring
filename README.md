@@ -53,6 +53,7 @@ let g:python_indent = '    '
 Which docstring style you wish to use.
 
 Default: `'google'`
+
 Possible values = [`'google'`, `'numpy'`, `'rest'`, `'epytext'`]
 
 ~~~{viml}
