@@ -15,8 +15,8 @@ class Enviroment(abc.ABC):
     @abc.abstractmethod
     def python_style(self):
         """ Returns string containing docstring style: google, numpy, etc.
-            The style has to have corresponding template of name <style>.txt 
-            in folder 'styles'.
+            The style has to have corresponding template of name 
+            <style>-method.txt end <style>-class.txt in folder 'styles'.
         """
 
     @property

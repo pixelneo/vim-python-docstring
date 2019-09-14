@@ -37,6 +37,28 @@ The plugin uses these commands:
 | Docstring     | Create full docstring 
 | DocstringLine | Create empty one-line docstring  
 
+## Options:
+There are things you can set.
+
+### The `g:python_indent` option
+String which you use to indent your code.
+
+Default: `'    '` (4 spaces).
+
+~~~{viml}
+let g:python_indent = '    '
+~~~
+
+### The `g:python_style` option
+Which docstring style you wish to use.
+
+Default: `'google'`
+Possible values = [`'google'`, `'numpy'`, `'rest'`, `'epytext'`]
+
+~~~{viml}
+let g:python_style = 'google'
+~~~
+
 ## Work in progress
 Pull requests are welcome as are feature request and issue reports.
 
