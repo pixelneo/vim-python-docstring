@@ -43,7 +43,7 @@ There are things you can set.
 ### The `g:python_indent` option
 String which you use to indent your code.
 
-Default: `'    '` (4 spaces).
+Default: `'&emsp'` (4 spaces).
 
 ~~~{viml}
 let g:python_indent = '    '
