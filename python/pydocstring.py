@@ -23,6 +23,15 @@ class DocstringUnavailable(Exception):
 
 
 class Templater:
+    """ Class used to template the docstrings
+
+    Attributes:
+        indent: used indentation
+        location: path to styles folder
+        style: docstring style
+        template: resulting remplate
+
+    """
 
     def __init__(self, location, indent, style='google'):
         self.style = style
@@ -53,6 +62,14 @@ class Templater:
 
 
 class ObjectWithDocstring(abc.ABC):
+    """ Represents an object (class, method) with the enviroment in which it is opened
+
+    Attributes:
+        env: enviroment class
+        starting_line: beggining line of the object on which it works
+        templater: templater object
+
+    """
 
     def __init__(self, env, templater, style='google'):
         self.starting_line = env.current_line_nr
@@ -99,8 +116,9 @@ class ObjectWithDocstring(abc.ABC):
         while True:
             try:
                 last_row, line = next(lines_it)
-            except StopIteration as e:
+            except Exception as e:
                 break
+
             if valid_sig and not self._is_correct_indent(lines[-1], line, expected_indent):
                 break
 
@@ -147,6 +165,7 @@ class ObjectWithDocstring(abc.ABC):
             return False, None
 
     def write_simple_docstring(self):
+        """ Writes the generated docstring in the enviroment """
         sig_line, indent = self._get_sig()
         docstring = concat_(indent, self.templater.indent, '"""  """')
         self.env.append_after_line(sig_line, docstring)
@@ -208,6 +227,7 @@ class ClassController(ObjectWithDocstring):
 
 
 class Docstring:
+    """ Class used by user to generate docstrings"""
 
     def __init__(self):
         env = VimEnviroment()
@@ -230,13 +250,16 @@ class Docstring:
                 'Docstring cannot be created for selected object')
 
     def full_docstring(self):
+        """ Writes docstring containing arguments, returns, raises, ... """
         try:
             self.obj_controller.write_docstring()
         except Exception as e:
             print(concat_('Doctring ERROR: ', e))
 
     def oneline_docstring(self):
+        """ Writes only a one-line empty docstring """
         try:
             self.obj_controller.write_simple_docstring()
         except Exception as e:
             print(concat_('Doctring ERROR: ', e))
+

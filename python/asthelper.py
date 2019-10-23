@@ -60,6 +60,16 @@ class ClassVisitor(ast.NodeVisitor):
 
 
 class MethodVisitor(ast.NodeVisitor):
+    """ Gathers information about a method
+
+    Attributes:
+        arguments: arguments of the method
+        parent: indicated whether this method is inside another
+        raises: set of raised exceptions
+        returns: True if method returns
+        yields: True is method yields
+
+    """
     def __init__(self, parent=True):
         self.parent = parent
         self.arguments = []
