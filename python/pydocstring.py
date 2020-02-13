@@ -180,9 +180,7 @@ class MethodController(ObjectWithDocstring):
         v = MethodVisitor()
         v.visit(tree)
         args = list(v.arguments)
-        args.sort()
         raises = list(v.raises)
-        raises.sort()
         return args, v.returns, v.yields, raises
 
     # TODO: set cursor on appropriate position to fill the docstring
@@ -216,7 +214,6 @@ class ClassController(ObjectWithDocstring):
         v = ClassVisitor(x.instance_name)
         v.visit(tree)
         att = list(v.attributes)
-        att.sort()
         return att
 
     def write_docstring(self):
