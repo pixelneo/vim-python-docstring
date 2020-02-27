@@ -59,9 +59,7 @@ class Enviroment(abc.ABC):
 class VimEnviroment(Enviroment):
 
     def __init__(self):
-        settings = {'g:python_indent': '    ', 'g:python_style': 'google'}
-        for k, v in settings.items():
-            vim.command("let {} = get(g:,'{}', \"{}\")".format(k, v, v))
+        pass
 
     def _get_var(self, name):
         return vim.eval(name)
@@ -72,11 +70,17 @@ class VimEnviroment(Enviroment):
 
     @property
     def python_style(self):
-        return self._get_var('g:python_style')
+        if not int(vim.eval('exists("g:python_style")')):
+            return "google"
+        else:
+            return self._get_var('g:python_style')
 
     @property
     def python_indent(self):
-        return self._get_var('g:python_indent')
+        if not int(vim.eval('exists("g:python_indent")')):
+            return "    "
+        else:
+            return self._get_var('g:python_indent')
 
     @property
     def current_line_nr(self):
