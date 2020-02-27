@@ -78,7 +78,7 @@ class VimEnviroment(Enviroment):
     @property
     def python_indent(self):
         if not int(vim.eval('exists("g:python_indent")')):
-            return "     "
+            return "    "
         else:
             return self._get_var('g:python_indent')
 
