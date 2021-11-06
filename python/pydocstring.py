@@ -242,9 +242,15 @@ class Docstring:
             return MethodController(env, templater, style=style)
         elif first_word == 'class':
             return ClassController(env, templater, style=style)
-        else:
-            raise DocstringUnavailable(
-                'Docstring cannot be created for selected object')
+        elif first_word == 'async':
+            second_word_catch = re.match('^\s*\w+\s+(\w+).*', line)
+            if second_word_catch:
+                second_word = second_word_catch.groups()[0]
+                if second_word == 'def':
+                    return MethodController(env, templater, style=style)
+
+        raise DocstringUnavailable(
+            'Docstring cannot be created for selected object')
 
     def full_docstring(self):
         """ Writes docstring containing arguments, returns, raises, ... """
