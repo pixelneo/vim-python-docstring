@@ -19,7 +19,7 @@ def foo(a='foo(c,d)',
 ~~~
 
 
-## Instalation
+## Installation
 If you use for example Vundle, add `Plugin 'pixelneo/vim-python-docstring'` to your `.vimrc` file.
 
 Alternatively if you have Vim 8 and newer, you can clone this repository into `~/.vim/pack/<whatever>/start/` where `<whatever>` is *whatever* you want it to be.
