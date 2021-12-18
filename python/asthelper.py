@@ -1,15 +1,14 @@
 import ast
 
 
-class NameCollector(ast.NodeVisitor):
+class RaiseNameCollector(ast.NodeVisitor):
 
     def __init__(self):
         self.data = set()
         super().__init__()
 
-    def visit_Name(self, node):
-        self.data.add(node.id)
-        super().generic_visit(node)
+    def visit_Call(self, node):
+        self.data.add(node.func.id)
 
 
 class AttributeCollector(ast.NodeVisitor):
@@ -79,7 +78,7 @@ class MethodVisitor(ast.NodeVisitor):
         super().__init__()
 
     def visit_Raise(self, node):
-        r = NameCollector()
+        r = RaiseNameCollector()
         r.visit(node)
         self.raises |= r.data
         super().generic_visit(node)

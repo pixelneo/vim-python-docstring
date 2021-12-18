@@ -138,7 +138,7 @@ class ObjectWithDocstring(abc.ABC):
         return sig_line, obj_indent, tree
 
     def _is_correct_indent(self, previous_line, line, expected_indent):
-        """ Check whether given line has either given indentation (or more) 
+        """ Check whether given line has either given indentation (or more)
             or does contain only nothing or whitespaces.
         """
         # Disclaimer: I know this does not check for multiline comments and strings
