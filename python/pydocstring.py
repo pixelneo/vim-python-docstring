@@ -129,7 +129,16 @@ class ObjectWithDocstring(abc.ABC):
                 sig_line = last_row
 
         # remove obj_indent from the beginning of all lines
-        data = '\n'.join([re.sub('^'+obj_indent, '', l) for l in lines])
+        lines = [re.sub('^'+obj_indent, '', l) for l in lines]
+        for i, l in enumerate(reversed(lines)):
+            if l.strip() == '':
+                lines.pop()
+            else:
+                break
+        if len(lines) == 1:
+            lines.append(f'{self.env.python_indent}pass')
+
+        data = '\n'.join(lines)
         try:
             tree = ast.parse(data)
         except Exception as e:
