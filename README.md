@@ -1,6 +1,8 @@
 # vim-python-docstring
 This is a plugin to Vim for creating of docstrings. 
 
+Works also with neovim.
+
 ## What it does
 Docstrings for methods will contain a **list of arguments**, **list of raised exceptions** and whether the method **yields** or **raises**.
 
@@ -23,6 +25,8 @@ def foo(a='foo(c,d)',
 If you use for example Vundle, add `Plugin 'pixelneo/vim-python-docstring'` to your `.vimrc` file.
 
 Alternatively if you have Vim 8 and newer, you can clone this repository into `~/.vim/pack/<whatever>/start/` where `<whatever>` is *whatever* you want it to be.
+
+If you have **neovim**, install python provider first: `pip3 install pynvim`.
 
 ## Usage
 The plugin has only commands which you can map however you like (i use `<leader>ss` for `:Docstring`).
