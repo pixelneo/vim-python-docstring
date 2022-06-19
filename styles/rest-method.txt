@@ -1,6 +1,7 @@
 """
 {% if args|len > 0 %}{% for a in args %}:param {{a.arg}}:
-{% endfor %}{% endif %}{% if returns %}:returns:
+{% endfor %}{% if hints %}{% for a in args %}{% if a.type %}:type {{a.arg}}: {{a.type}}
+{% endif %}{% endfor %}{% endif %}{% endif %}{% if returns %}:returns:
 {% endif %}{% if yields %}:yields:
 {% endif %}{% if raises|len > 0 %}{% for a in raises %}:raises {{a}}:
 {% endfor %}{% endif %}"""
