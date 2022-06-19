@@ -267,7 +267,6 @@ class Docstring:
             self.obj_controller.write_docstring(print_hints=print_hints)
         except Exception as e:
             print(concat_('Doctring ERROR: ', e))
-            raise e
 
     def oneline_docstring(self):
         """ Writes only a one-line empty docstring """

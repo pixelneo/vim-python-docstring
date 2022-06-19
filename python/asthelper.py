@@ -93,7 +93,6 @@ class MethodVisitor(ast.NodeVisitor):
 
             self.returns = new_visitor.returns
             self.yields = new_visitor.yields
-            print(self.arguments)
 
     def visit_Raise(self, node):
         r = RaiseNameCollector()
