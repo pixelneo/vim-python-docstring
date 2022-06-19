@@ -84,7 +84,7 @@ class MethodVisitor(ast.NodeVisitor):
 
         if self.parent:
             for arg in node.args.args:
-                self.arguments.append(arg.arg)
+                self.arguments.append({'arg': arg.arg, 'type': ast.unparse(arg.annotation)})
             if len(self.arguments) > 0 and (self.arguments[0] == 'self' or self.arguments[0] == 'cls'):
                 self.arguments.pop(0)
 

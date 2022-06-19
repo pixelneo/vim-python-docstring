@@ -1,5 +1,5 @@
 """
-{% if args|len > 0 %}{% for a in args %}@param {{a}}:
+{% if args|len > 0 %}{% for a in args %}@param {{a.arg}}:
 {% endfor %}{% endif %}{% if returns %}@return:
 {% endif %}{% if yields %}@yield:
 {% endif %}{% if raises|len > 0 %}{% for a in raises %}@raise {{a}}:
