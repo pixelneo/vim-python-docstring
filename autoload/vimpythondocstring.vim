@@ -16,6 +16,10 @@ function! vimpythondocstring#Full()
     python3 pydocstring.Docstring().full_docstring()
 endfunction
 
+function! vimpythondocstring#FullTypes()
+    python3 pydocstring.Docstring().full_docstring(print_hints=True)
+endfunction
+
 function! vimpythondocstring#Oneline()
     python3 pydocstring.Docstring().oneline_docstring()
 endfunction

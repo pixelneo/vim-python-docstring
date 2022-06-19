@@ -97,7 +97,6 @@ class VimEnviroment(Enviroment):
 
     def lines_following_cursor(self):
         import vim
-        lines = []
         buffer = vim.current.buffer
         cursor_row = vim.current.window.cursor[0] - 1
         current_row = cursor_row

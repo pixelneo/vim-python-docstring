@@ -2,7 +2,7 @@
 {% if args|len > 0 %}
 Parameters
 ----------
-{% for a in args %}{{indent}}{{a}} :
+{% for a in args %}{{indent}}{{a.arg}} :{% if hints and a.type %} {{a.type}}{% endif %}
 {% endfor %}{% endif %}{% if returns %}
 Returns
 -------

@@ -1,10 +1,10 @@
 # vim-python-docstring
-This is a plugin to Vim for creating of docstrings. 
+This is a plugin to Vim and NeoVim for creating of docstrings. 
 
-Works also with neovim.
+**New**: Support for type hints and async functions.
 
 ## What it does
-Docstrings for methods will contain a **list of arguments**, **list of raised exceptions** and whether the method **yields** or **raises**.
+Docstrings for methods will contain a **list of parameters and their type hints**, **list of raised exceptions** and whether the method **yields** or **raises**.
 
 Class docstring will have a **list of atributes**. 
 
@@ -39,6 +39,7 @@ The plugin uses these commands:
 | Command       | Description |
 |---------------|-------------|
 | Docstring     | Create full docstring 
+| DocstringTypes| Just like `:Docstring` but includes type hints
 | DocstringLine | Create empty one-line docstring  
 
 ## Options:
@@ -64,7 +65,7 @@ Possible values = [`'google'`, `'numpy'`, `'rest'`, `'epytext'`]
 let g:python_style = 'google'
 ~~~
 
-## Work in progress
+## Development
 Pull requests are welcome as are feature request and issue reports.
 
 You can encounter some situations in which the plugin may not work as expected.

@@ -47,10 +47,10 @@ class Templater:
 
         return '\n'.join(lines)
 
-    def get_method_docstring(self, method_indent, args, returns, yields, raises):
+    def get_method_docstring(self, method_indent, args, returns, yields, raises, print_hints=False):
         with open(os.path.join(self.location, '..', 'styles/{}-{}.txt'.format(self.style, 'method')), 'r') as f:
             self.template = ibis.Template(f.read())
-        docstring = self.template.render(indent=self.indent, args=args,
+        docstring = self.template.render(indent=self.indent, args=args, hints=print_hints,
                                          raises=raises, returns=returns, yields=yields)
         return self._docstring_helper(method_indent, docstring)
 
@@ -71,13 +71,13 @@ class ObjectWithDocstring(abc.ABC):
 
     """
 
-    def __init__(self, env, templater, style='google'):
+    def __init__(self, env, templater):
         self.starting_line = env.current_line_nr
         self.env = env
         self.templater = templater
 
     @abc.abstractmethod
-    def write_docstring(self):
+    def write_docstring(self, *args, **kwargs):
         """ Method to create a docstring for appropriate object
 
         Writes the docstring to correct lines in `self.env` object.
@@ -88,7 +88,7 @@ class ObjectWithDocstring(abc.ABC):
         lines = []
         lines_it = self.env.lines_following_cursor()
         sig_line, first_line = next(lines_it)
-        indent = re.findall('^(\s*)', first_line)[0]
+        indent = re.findall(r'^(\s*)', first_line)[0]
 
         lines.append(first_line)
 
@@ -108,7 +108,7 @@ class ObjectWithDocstring(abc.ABC):
 
         lines.append(first_line)
 
-        obj_indent = re.findall('^(\s*)', first_line)[0]
+        obj_indent = re.findall(r'^(\s*)', first_line)[0]
         expected_indent = concat_(obj_indent, self.env.python_indent)
 
         valid_sig, _ = self._is_valid(first_line)
@@ -182,8 +182,8 @@ class ObjectWithDocstring(abc.ABC):
 
 class MethodController(ObjectWithDocstring):
 
-    def __init__(self, env, templater, style='google'):
-        super().__init__(env, templater, style)
+    def __init__(self, env, templater):
+        super().__init__(env, templater)
 
     def _process_tree(self, tree):
         v = MethodVisitor()
@@ -193,11 +193,11 @@ class MethodController(ObjectWithDocstring):
         return args, v.returns, v.yields, raises
 
     # TODO: set cursor on appropriate position to fill the docstring
-    def write_docstring(self):
+    def write_docstring(self, print_hints=False):
         sig_line, method_indent, tree = self._object_tree()
         args, returns, yields, raises = self._process_tree(tree)
         docstring = self.templater.get_method_docstring(
-            method_indent, args, returns, yields, raises)
+            method_indent, args, returns, yields, raises, print_hints)
         self.env.append_after_line(sig_line, docstring)
 
     def _arguments(self, tree):
@@ -214,8 +214,8 @@ class MethodController(ObjectWithDocstring):
 
 class ClassController(ObjectWithDocstring):
 
-    def __init__(self, env, templater, style='google'):
-        super().__init__(env, templater, style)
+    def __init__(self, env, templater):
+        super().__init__(env, templater)
 
     def _process_tree(self, tree):
         x = ClassInstanceNameExtractor()
@@ -225,7 +225,7 @@ class ClassController(ObjectWithDocstring):
         att = list(v.attributes)
         return att
 
-    def write_docstring(self):
+    def write_docstring(self, *args, **kwargs):
         sig_line, class_indent, tree = self._object_tree()
         attr = self._process_tree(tree)
         docstring = self.templater.get_class_docstring(class_indent, attr)
@@ -240,33 +240,34 @@ class Docstring:
         style = env.python_style
         indent = env.python_indent
         location = env.plugin_root_dir
-        templater = Templater(location, indent, style)
+        templater = Templater(location, indent=indent, style=style)
 
-        self.obj_controller = self._controller_factory(env, templater, style)
+        self.obj_controller = self._controller_factory(env, templater)
 
-    def _controller_factory(self, env, templater, style):
+    def _controller_factory(self, env, templater):
         line = env.current_line
-        first_word = re.match('^\s*(\w+).*', line).groups()[0]
+        first_word = re.match(r'^\s*(\w+).*', line).groups()[0]
         if first_word == 'def':
-            return MethodController(env, templater, style=style)
+            return MethodController(env, templater)
         elif first_word == 'class':
-            return ClassController(env, templater, style=style)
+            return ClassController(env, templater)
         elif first_word == 'async':
-            second_word_catch = re.match('^\s*\w+\s+(\w+).*', line)
+            second_word_catch = re.match(r'^\s*\w+\s+(\w+).*', line)
             if second_word_catch:
                 second_word = second_word_catch.groups()[0]
                 if second_word == 'def':
-                    return MethodController(env, templater, style=style)
+                    return MethodController(env, templater)
 
         raise DocstringUnavailable(
             'Docstring cannot be created for selected object')
 
-    def full_docstring(self):
+    def full_docstring(self, print_hints=False):
         """ Writes docstring containing arguments, returns, raises, ... """
         try:
-            self.obj_controller.write_docstring()
+            self.obj_controller.write_docstring(print_hints=print_hints)
         except Exception as e:
             print(concat_('Doctring ERROR: ', e))
+            raise e
 
     def oneline_docstring(self):
         """ Writes only a one-line empty docstring """
