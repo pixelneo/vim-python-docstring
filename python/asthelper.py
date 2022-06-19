@@ -77,6 +77,20 @@ class MethodVisitor(ast.NodeVisitor):
         self.yields = False
         super().__init__()
 
+    def _handle_functions(self, node):
+        new_visitor = MethodVisitor(parent=False)
+        new_visitor.generic_visit(node)
+        self.raises |= new_visitor.raises
+
+        if self.parent:
+            for arg in node.args.args:
+                self.arguments.append(arg.arg)
+            if len(self.arguments) > 0 and (self.arguments[0] == 'self' or self.arguments[0] == 'cls'):
+                self.arguments.pop(0)
+
+            self.returns = new_visitor.returns
+            self.yields = new_visitor.yields
+
     def visit_Raise(self, node):
         r = RaiseNameCollector()
         r.visit(node)
@@ -92,15 +106,7 @@ class MethodVisitor(ast.NodeVisitor):
         super().generic_visit(node)
 
     def visit_FunctionDef(self, node):
-        new_visitor = MethodVisitor(parent=False)
-        new_visitor.generic_visit(node)
-        self.raises |= new_visitor.raises
+        self._handle_functions(node)
 
-        if self.parent:
-            for arg in node.args.args:
-                self.arguments.append(arg.arg)
-            if len(self.arguments) > 0 and (self.arguments[0] == 'self' or self.arguments[0] == 'cls'):
-                self.arguments.pop(0)
-
-            self.returns = new_visitor.returns
-            self.yields = new_visitor.yields
+    def visit_AsyncFunctionDef(self, node):
+        self._handle_functions(node)
