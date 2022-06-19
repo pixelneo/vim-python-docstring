@@ -77,7 +77,7 @@ class ObjectWithDocstring(abc.ABC):
         self.templater = templater
 
     @abc.abstractmethod
-    def write_docstring(self):
+    def write_docstring(self, *args, **kwargs):
         """ Method to create a docstring for appropriate object
 
         Writes the docstring to correct lines in `self.env` object.
@@ -225,7 +225,7 @@ class ClassController(ObjectWithDocstring):
         att = list(v.attributes)
         return att
 
-    def write_docstring(self):
+    def write_docstring(self, *args, **kwargs):
         sig_line, class_indent, tree = self._object_tree()
         attr = self._process_tree(tree)
         docstring = self.templater.get_class_docstring(class_indent, attr)
@@ -267,6 +267,7 @@ class Docstring:
             self.obj_controller.write_docstring(print_hints=print_hints)
         except Exception as e:
             print(concat_('Doctring ERROR: ', e))
+            raise e
 
     def oneline_docstring(self):
         """ Writes only a one-line empty docstring """

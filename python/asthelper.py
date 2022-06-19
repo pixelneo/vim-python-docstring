@@ -84,12 +84,16 @@ class MethodVisitor(ast.NodeVisitor):
 
         if self.parent:
             for arg in node.args.args:
-                self.arguments.append({'arg': arg.arg, 'type': ast.unparse(arg.annotation)})
+                type_hint = None
+                if arg.annotation is not None:
+                    type_hint = ast.unparse(arg.annotation)
+                self.arguments.append({'arg': arg.arg, 'type': type_hint})
             if len(self.arguments) > 0 and (self.arguments[0] == 'self' or self.arguments[0] == 'cls'):
                 self.arguments.pop(0)
 
             self.returns = new_visitor.returns
             self.yields = new_visitor.yields
+            print(self.arguments)
 
     def visit_Raise(self, node):
         r = RaiseNameCollector()
