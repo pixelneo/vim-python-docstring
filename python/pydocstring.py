@@ -200,17 +200,6 @@ class MethodController(ObjectWithDocstring):
             method_indent, args, returns, yields, raises, print_hints)
         self.env.append_after_line(sig_line, docstring)
 
-    def _arguments(self, tree):
-        try:
-            args = []
-            for arg in tree.body[0].args.args:
-                args.append(arg.arg)
-            if args[0] == 'self' or args[0] == 'cls':
-                args.pop(0)
-            return args
-        except SyntaxError as e:
-            raise InvalidSyntax('The method has invalid syntax.')
-
 
 class ClassController(ObjectWithDocstring):
 

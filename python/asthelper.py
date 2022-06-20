@@ -88,7 +88,7 @@ class MethodVisitor(ast.NodeVisitor):
                 if arg.annotation is not None:
                     type_hint = ast.unparse(arg.annotation)
                 self.arguments.append({'arg': arg.arg, 'type': type_hint})
-            if len(self.arguments) > 0 and (self.arguments[0] == 'self' or self.arguments[0] == 'cls'):
+            if len(self.arguments) > 0 and (self.arguments[0]['arg'] == 'self' or self.arguments[0]['arg'] == 'cls'):
                 self.arguments.pop(0)
 
             self.returns = new_visitor.returns
