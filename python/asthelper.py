@@ -1,4 +1,5 @@
 import ast
+from itertools import chain
 
 
 class RaiseNameCollector(ast.NodeVisitor):
@@ -83,7 +84,7 @@ class MethodVisitor(ast.NodeVisitor):
         self.raises |= new_visitor.raises
 
         if self.parent:
-            for arg in node.args.args:
+            for arg in chain(node.args.args, node.args.kwonlyargs):
                 type_hint = None
                 if arg.annotation is not None:
                     type_hint = ast.unparse(arg.annotation)
