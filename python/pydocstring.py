@@ -13,17 +13,19 @@ from asthelper import ClassVisitor, MethodVisitor, ClassInstanceNameExtractor
 
 
 class InvalidSyntax(Exception):
-    """ Raise when the syntax of processed object is invalid. """
+    """Raise when the syntax of processed object is invalid."""
+
     pass
 
 
 class DocstringUnavailable(Exception):
-    """ Raise when trying to process object to which there is no docstring. """
+    """Raise when trying to process object to which there is no docstring."""
+
     pass
 
 
 class Templater:
-    """ Class used to template the docstrings
+    """Class used to template the docstrings
 
     Attributes:
         indent: used indentation
@@ -33,36 +35,54 @@ class Templater:
 
     """
 
-    def __init__(self, location, indent, style='google'):
+    def __init__(self, location, indent, style="google"):
         self.style = style
         self.indent = indent
         self.location = location
 
     def _docstring_helper(self, obj_indent, docstring):
         lines = []
-        for line in docstring.split('\n'):
-            if re.match('.', line):
+        for line in docstring.split("\n"):
+            if re.match(".", line):
                 line = concat_(obj_indent, self.indent, line)
             lines.append(line)
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
-    def get_method_docstring(self, method_indent, args, returns, yields, raises, print_hints=False):
-        with open(os.path.join(self.location, '..', 'styles/{}-{}.txt'.format(self.style, 'method')), 'r') as f:
+    def get_method_docstring(
+        self, method_indent, args, returns, yields, raises, print_hints=False
+    ):
+        with open(
+            os.path.join(
+                self.location, "..", "styles/{}-{}.txt".format(self.style, "method")
+            ),
+            "r",
+        ) as f:
             self.template = ibis.Template(f.read())
-        docstring = self.template.render(indent=self.indent, args=args, hints=print_hints,
-                                         raises=raises, returns=returns, yields=yields)
+        docstring = self.template.render(
+            indent=self.indent,
+            args=args,
+            hints=print_hints,
+            raises=raises,
+            returns=returns,
+            yields=yields,
+        )
         return self._docstring_helper(method_indent, docstring)
 
     def get_class_docstring(self, class_indent, attr):
-        with open(os.path.join(self.location, '..', 'styles/{}-{}.txt'.format(self.style, 'class')), 'r') as f:
+        with open(
+            os.path.join(
+                self.location, "..", "styles/{}-{}.txt".format(self.style, "class")
+            ),
+            "r",
+        ) as f:
             self.template = ibis.Template(f.read())
         docstring = self.template.render(indent=self.indent, attr=attr)
         return self._docstring_helper(class_indent, docstring)
 
 
 class ObjectWithDocstring(abc.ABC):
-    """ Represents an object (class, method) with the enviroment in which it is opened
+    """Represents an object (class, method) with the enviroment in which it is opened
 
     Attributes:
         env: enviroment class
@@ -78,7 +98,7 @@ class ObjectWithDocstring(abc.ABC):
 
     @abc.abstractmethod
     def write_docstring(self, *args, **kwargs):
-        """ Method to create a docstring for appropriate object
+        """Method to create a docstring for appropriate object
 
         Writes the docstring to correct lines in `self.env` object.
         """
@@ -88,27 +108,27 @@ class ObjectWithDocstring(abc.ABC):
         lines = []
         lines_it = self.env.lines_following_cursor()
         sig_line, first_line = next(lines_it)
-        indent = re.findall(r'^(\s*)', first_line)[0]
+        indent = re.findall(r"^(\s*)", first_line)[0]
 
         lines.append(first_line)
 
-        while not self._is_valid(''.join(lines)):
+        while not self._is_valid("".join(lines)):
             try:
                 sig_line, line = next(lines_it)
             except StopIteration as e:
-                raise InvalidSyntax('Object does not have valid syntax')
+                raise InvalidSyntax("Object does not have valid syntax")
             lines.append(line)
         return sig_line, indent
 
     def _object_tree(self):
-        """ Get the source code of the object under cursor. """
+        """Get the source code of the object under cursor."""
         lines = []
         lines_it = self.env.lines_following_cursor()
         sig_line, first_line = next(lines_it)
 
         lines.append(first_line)
 
-        obj_indent = re.findall(r'^(\s*)', first_line)[0]
+        obj_indent = re.findall(r"^(\s*)", first_line)[0]
         expected_indent = concat_(obj_indent, self.env.python_indent)
 
         valid_sig, _ = self._is_valid(first_line)
@@ -119,54 +139,56 @@ class ObjectWithDocstring(abc.ABC):
             except Exception as e:
                 break
 
-            if valid_sig and not self._is_correct_indent(lines[-1], line, expected_indent):
+            if valid_sig and not self._is_correct_indent(
+                lines[-1], line, expected_indent
+            ):
                 break
 
             lines.append(line)
             if not valid_sig:
-                data = ''.join(lines)
+                data = "".join(lines)
                 valid_sig, _ = self._is_valid(data)
                 sig_line = last_row
 
         # remove obj_indent from the beginning of all lines
-        lines = [re.sub('^'+obj_indent, '', l) for l in lines]
+        lines = [re.sub("^" + obj_indent, "", l) for l in lines]
         for i, l in enumerate(reversed(lines)):
-            if l.strip() == '':
+            if l.strip() == "":
                 lines.pop()
             else:
                 break
         if len(lines) == 1:
-            lines.append(f'{self.env.python_indent}pass')
+            lines.append(f"{self.env.python_indent}pass")
 
-        data = '\n'.join(lines)
+        data = "\n".join(lines)
         try:
             tree = ast.parse(data)
         except Exception as e:
-            raise InvalidSyntax('Object has invalid syntax.')
+            raise InvalidSyntax("Object has invalid syntax.")
 
         return sig_line, obj_indent, tree
 
     def _is_correct_indent(self, previous_line, line, expected_indent):
-        """ Check whether given line has either given indentation (or more)
-            or does contain only nothing or whitespaces.
+        """Check whether given line has either given indentation (or more)
+        or does contain only nothing or whitespaces.
         """
         # Disclaimer: I know this does not check for multiline comments and strings
         # strings ''' <newline> ...<newline>..''' are a problem !!!
-        if re.match('^'+expected_indent, line):
+        if re.match("^" + expected_indent, line):
             return True
-        elif re.match('^\s*#', line):
+        elif re.match("^\s*#", line):
             return True
-        elif re.match('^\s*["\']{3}', line):
+        elif re.match("^\s*[\"']{3}", line):
             return True
-        elif re.match('.*\\$', previous_line):
+        elif re.match(".*\\$", previous_line):
             return True
-        elif re.match('^\s*$', line):
+        elif re.match("^\s*$", line):
             return True
 
         return False
 
     def _is_valid(self, lines):
-        func = concat_(lines.lstrip(), '\n   pass')
+        func = concat_(lines.lstrip(), "\n   pass")
         try:
             tree = ast.parse(func)
             return True, tree
@@ -174,14 +196,13 @@ class ObjectWithDocstring(abc.ABC):
             return False, None
 
     def write_simple_docstring(self):
-        """ Writes the generated docstring in the enviroment """
+        """Writes the generated docstring in the enviroment"""
         sig_line, indent = self._get_sig()
         docstring = concat_(indent, self.templater.indent, '"""  """')
         self.env.append_after_line(sig_line, docstring)
 
 
 class MethodController(ObjectWithDocstring):
-
     def __init__(self, env, templater):
         super().__init__(env, templater)
 
@@ -197,12 +218,12 @@ class MethodController(ObjectWithDocstring):
         sig_line, method_indent, tree = self._object_tree()
         args, returns, yields, raises = self._process_tree(tree)
         docstring = self.templater.get_method_docstring(
-            method_indent, args, returns, yields, raises, print_hints)
+            method_indent, args, returns, yields, raises, print_hints
+        )
         self.env.append_after_line(sig_line, docstring)
 
 
 class ClassController(ObjectWithDocstring):
-
     def __init__(self, env, templater):
         super().__init__(env, templater)
 
@@ -222,7 +243,7 @@ class ClassController(ObjectWithDocstring):
 
 
 class Docstring:
-    """ Class used by user to generate docstrings"""
+    """Class used by user to generate docstrings"""
 
     def __init__(self):
         env = VimEnviroment()
@@ -235,32 +256,30 @@ class Docstring:
 
     def _controller_factory(self, env, templater):
         line = env.current_line
-        first_word = re.match(r'^\s*(\w+).*', line).groups()[0]
-        if first_word == 'def':
+        first_word = re.match(r"^\s*(\w+).*", line).groups()[0]
+        if first_word == "def":
             return MethodController(env, templater)
-        elif first_word == 'class':
+        elif first_word == "class":
             return ClassController(env, templater)
-        elif first_word == 'async':
-            second_word_catch = re.match(r'^\s*\w+\s+(\w+).*', line)
+        elif first_word == "async":
+            second_word_catch = re.match(r"^\s*\w+\s+(\w+).*", line)
             if second_word_catch:
                 second_word = second_word_catch.groups()[0]
-                if second_word == 'def':
+                if second_word == "def":
                     return MethodController(env, templater)
 
-        raise DocstringUnavailable(
-            'Docstring cannot be created for selected object')
+        raise DocstringUnavailable("Docstring cannot be created for selected object")
 
     def full_docstring(self, print_hints=False):
-        """ Writes docstring containing arguments, returns, raises, ... """
+        """Writes docstring containing arguments, returns, raises, ..."""
         try:
             self.obj_controller.write_docstring(print_hints=print_hints)
         except Exception as e:
-            print(concat_('Doctring ERROR: ', e))
+            print(concat_("Doctring ERROR: ", e))
 
     def oneline_docstring(self):
-        """ Writes only a one-line empty docstring """
+        """Writes only a one-line empty docstring"""
         try:
             self.obj_controller.write_simple_docstring()
         except Exception as e:
-            print(concat_('Doctring ERROR: ', e))
-
+            print(concat_("Doctring ERROR: ", e))

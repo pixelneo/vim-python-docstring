@@ -3,7 +3,6 @@ from itertools import chain
 
 
 class RaiseNameCollector(ast.NodeVisitor):
-
     def __init__(self):
         self.data = set()
         super().__init__()
@@ -13,7 +12,6 @@ class RaiseNameCollector(ast.NodeVisitor):
 
 
 class AttributeCollector(ast.NodeVisitor):
-
     def __init__(self, instance_name):
         self.instance_name = instance_name
         self.data = set()
@@ -28,14 +26,13 @@ class AttributeCollector(ast.NodeVisitor):
 
 
 class ClassInstanceNameExtractor(ast.NodeVisitor):
-
     def __init__(self):
-        self.instance_name = 'self'  # default
+        self.instance_name = "self"  # default
         self.set = False
         super().__init__()
 
     def visit_FunctionDef(self, node):
-        if node.name == '__init__':
+        if node.name == "__init__":
             self.instance_name = node.args.args[0].arg
             self.set = True
         elif not self.set:
@@ -60,7 +57,7 @@ class ClassVisitor(ast.NodeVisitor):
 
 
 class MethodVisitor(ast.NodeVisitor):
-    """ Gathers information about a method
+    """Gathers information about a method
 
     Attributes:
         arguments: arguments of the method
@@ -70,6 +67,7 @@ class MethodVisitor(ast.NodeVisitor):
         yields: True is method yields
 
     """
+
     def __init__(self, parent=True):
         self.parent = parent
         self.arguments = []
@@ -88,8 +86,10 @@ class MethodVisitor(ast.NodeVisitor):
                 type_hint = None
                 if arg.annotation is not None:
                     type_hint = ast.unparse(arg.annotation)
-                self.arguments.append({'arg': arg.arg, 'type': type_hint})
-            if len(self.arguments) > 0 and (self.arguments[0]['arg'] == 'self' or self.arguments[0]['arg'] == 'cls'):
+                self.arguments.append({"arg": arg.arg, "type": type_hint})
+            if len(self.arguments) > 0 and (
+                self.arguments[0]["arg"] == "self" or self.arguments[0]["arg"] == "cls"
+            ):
                 self.arguments.pop(0)
 
             self.returns = new_visitor.returns
