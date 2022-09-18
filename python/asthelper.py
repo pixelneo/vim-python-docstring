@@ -52,7 +52,7 @@ class ClassVisitor(ast.NodeVisitor):
     def visit_Assign(self, node):
         ac = AttributeCollector(self.instance_name)
         for target in node.targets:
-            ac.visit(node)
+            ac.visit(target)
         self.attributes |= ac.data
 
 
