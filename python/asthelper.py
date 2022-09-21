@@ -55,6 +55,11 @@ class ClassVisitor(ast.NodeVisitor):
             ac.visit(target)
         self.attributes |= ac.data
 
+    def visit_AnnAssign(self, node):
+        ac = AttributeCollector(self.instance_name)
+        ac.visit(node.target)
+        self.attributes |= ac.data
+
 
 class MethodVisitor(ast.NodeVisitor):
     """Gathers information about a method
