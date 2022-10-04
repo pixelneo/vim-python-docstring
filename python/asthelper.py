@@ -14,13 +14,13 @@ class RaiseNameCollector(ast.NodeVisitor):
 class AttributeCollector(ast.NodeVisitor):
     def __init__(self, instance_name):
         self.instance_name = instance_name
-        self.data = set()
+        self.data = {}
         super().__init__()
 
     def visit_Attribute(self, node):
         if isinstance(node.value, ast.Name):
             if node.value.id == self.instance_name:
-                self.data.add(node.attr)
+                self.data[node.attr] = None
         else:
             self.generic_visit(node)
 
@@ -46,7 +46,7 @@ class ClassInstanceNameExtractor(ast.NodeVisitor):
 class ClassVisitor(ast.NodeVisitor):
     def __init__(self, instance_name):
         super().__init__()
-        self.attributes = set()
+        self.attributes = {}
         self.instance_name = instance_name
 
     def visit_Assign(self, node):
