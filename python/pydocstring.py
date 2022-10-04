@@ -232,7 +232,7 @@ class ClassController(ObjectWithDocstring):
         x.visit(tree)
         v = ClassVisitor(x.instance_name)
         v.visit(tree)
-        att = list(v.attributes)
+        att = [attr_name for attr_name in v.attributes]
         return att
 
     def write_docstring(self, *args, **kwargs):
