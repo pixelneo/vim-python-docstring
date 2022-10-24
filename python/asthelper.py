@@ -90,10 +90,13 @@ class MethodVisitor(ast.NodeVisitor):
             for arg in chain(node.args.args, node.args.kwonlyargs):
                 type_hint = None
                 if arg.annotation is not None:
-                    # ast.unparse doesn't work in python 3.8, needs to use astunparse instead
+                    # ast.unparse doesn't work for python <= 3.8
                     if sys.version_info[0] == 3 and sys.version_info[1] == 8:
-                        import astunparse
-                        type_hint = astunparse.unparse(arg.annotation)
+                        from unparse import Unparser
+                        from io import StringIO
+                        v = StringIO()
+                        Unparser(arg.annotation, file=v)
+                        type_hint = v.getvalue()
                     else:
                         type_hint = ast.unparse(arg.annotation)
                 self.arguments.append({"arg": arg.arg, "type": type_hint})
