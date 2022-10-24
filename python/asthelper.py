@@ -91,7 +91,7 @@ class MethodVisitor(ast.NodeVisitor):
                 type_hint = None
                 if arg.annotation is not None:
                     # ast.unparse doesn't work for python <= 3.8
-                    if sys.version_info[0] == 3 and sys.version_info[1] == 8:
+                    if sys.version_info[0] == 3 and sys.version_info[1] <= 8:
                         from unparse import Unparser
                         from io import StringIO
                         v = StringIO()
