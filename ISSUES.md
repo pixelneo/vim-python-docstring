@@ -2,7 +2,7 @@
 
 ## Detection of catching some exceptions
 
-Docstring for this method will conain 'Raises Exception':
+Docstring for this method will contain 'Raises Exception':
 
 ~~~{python}
 def foo():
