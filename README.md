@@ -1,7 +1,7 @@
 # vim-python-docstring
 This is a plugin to Vim and NeoVim for creating of docstrings. 
 
-**New**: Support for type hints and async functions.
+**Breaking change:** Renamed the `g:python_indent` setting to `vpd_indent` because it collided with existing vim setting.
 
 ## What it does
 Docstrings for methods will contain a **list of parameters and their type hints**, **list of raised exceptions** and whether the method **yields** or **raises**.
@@ -45,13 +45,13 @@ The plugin uses these commands:
 ## Options:
 There are things you can set.
 
-### The `g:python_indent` option
+### The `g:vpd_indent` option
 String which you use to indent your code.
 
 Default: `'    '` (4 spaces).
 
 ~~~{viml}
-let g:python_indent = '    '
+let g:vpd_indent = '    '
 ~~~
 
 ### The `g:python_style` option

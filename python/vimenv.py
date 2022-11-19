@@ -75,10 +75,10 @@ class VimEnviroment(Enviroment):
 
     @property
     def python_indent(self):
-        if not int(vim.eval('exists("g:python_indent")')):
+        if not int(vim.eval('exists("g:vpd_indent")')):
             return "    "
         else:
-            return self._get_var("g:python_indent")
+            return self._get_var("g:vpd_indent")
 
     @property
     def current_line_nr(self):
