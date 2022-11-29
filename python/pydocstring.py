@@ -174,21 +174,21 @@ class ObjectWithDocstring(abc.ABC):
         """
         # Disclaimer: I know this does not check for multiline comments and strings
         # strings ''' <newline> ...<newline>..''' are a problem !!!
-        if re.match("^" + expected_indent, line):
+        if re.match(r"^" + expected_indent, line):
             return True
-        elif re.match("^\s*#", line):
+        elif re.match(r"^\s*#", line):
             return True
-        elif re.match("^\s*[\"']{3}", line):
+        elif re.match(r"^\s*[\"']{3}", line):
             return True
-        elif re.match(".*\\$", previous_line):
+        elif re.match(r".*\\$", previous_line):
             return True
-        elif re.match("^\s*$", line):
+        elif re.match(r"^\s*$", line):
             return True
 
         return False
 
     def _is_valid(self, lines):
-        func = concat_(lines.lstrip(), "\n   pass")
+        func = concat_(lines.lstrip(), "\n    pass")
         try:
             tree = ast.parse(func)
             return True, tree
