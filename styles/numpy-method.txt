@@ -2,18 +2,16 @@
 {% if args|len > 0 %}
 Parameters
 ----------
-{% for a in args %}{{indent}}{{a.arg}} :{% if hints and a.type %} {{a.type}}{% endif %}
+{% for a in args %}{{a.arg}} :{% if hints and a.type %} {{a.type}}{% endif %}
 {% endfor %}{% endif %}{% if returns %}
 Returns
 -------
-{{indent}}
 {% endif %}{% if yields %}
 Yields
 ------
-{{indent}}
 {% endif %}{% if raises|len > 0 %}
 Raises
 ------
-{% for a in raises %}{{indent}}{{a}} :
+{% for a in raises %}{{a}} :
 {% endfor %}{% endif %}
 """
