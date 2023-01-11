@@ -2,6 +2,6 @@
 {% if attr|len > 0 %}
 Attributes
 ----------
-{% for a in attr %}{{indent}}{{a}} :
+{% for a in attr %}{{a}} :
 {% endfor %}{% endif %}
 """
