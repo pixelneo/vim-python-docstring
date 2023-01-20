@@ -1,3 +1,4 @@
 vim-python-docstring by Ondřej Měkota is licensed under GNU GENERAL PUBLIC LICENSE: https://www.gnu.org/licenses/gpl-3.0.en.html
 
 Templater used for printing docstrings -- Ibis -- has this license: https://github.com/dmulholl/ibis/blob/master/license.txt
+docstring_parser is taken form here: https://github.com/rr-/docstring_parser and has this license: https://github.com/rr-/docstring_parser/blob/master/LICENSE.md
