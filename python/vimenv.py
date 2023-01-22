@@ -29,6 +29,10 @@ class Enviroment(abc.ABC):
         """Returns number of the current line, indexed from 0."""
 
     @property
+    def update_existing(self):
+        """ Update existing docstrings if they exist. """
+
+    @property
     @abc.abstractmethod
     def current_line(self):
         """Returns current line."""
@@ -70,15 +74,20 @@ class VimEnviroment(Enviroment):
     def python_style(self):
         if not int(vim.eval('exists("g:python_style")')):
             return "google"
-        else:
-            return self._get_var("g:python_style")
+        return self._get_var("g:python_style")
 
     @property
     def python_indent(self):
         if not int(vim.eval('exists("g:vpd_indent")')):
             return "    "
-        else:
-            return self._get_var("g:vpd_indent")
+        return self._get_var("g:vpd_indent")
+
+    @property
+    def update_existing(self):
+        # TODO the bool conversion
+        if not bool(vim.eval('g:vpd_update_existing')):
+            return True
+        return self._get_var("g:vpd_update_existing")
 
     @property
     def current_line_nr(self):

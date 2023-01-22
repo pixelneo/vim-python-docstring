@@ -10,6 +10,7 @@ import ibis
 from utils import *
 from vimenv import *
 from asthelper import ClassVisitor, MethodVisitor, ClassInstanceNameExtractor
+from . import docstring_parser
 
 
 class InvalidSyntax(Exception):
@@ -93,7 +94,7 @@ class ObjectWithDocstring(abc.ABC):
 
     def __init__(self, env, templater):
         self.starting_line = env.current_line_nr
-        self.env = env
+        self.env: VimEnviroment = env
         self.templater = templater
 
     @abc.abstractmethod
@@ -217,10 +218,21 @@ class MethodController(ObjectWithDocstring):
     def write_docstring(self, print_hints=False):
         sig_line, method_indent, tree = self._object_tree()
         args, returns, yields, raises = self._process_tree(tree)
-        docstring = self.templater.get_method_docstring(
-            method_indent, args, returns, yields, raises, print_hints
-        )
-        self.env.append_after_line(sig_line, docstring)
+        if self.env.update_existing:
+            # TODO: parse existing docstring to get {args, returns, raises, tields} (=data)
+            # TODO: unify the data from the docstring and the function
+            # TODO: write docstring
+            try:
+                parsed_docstring = docstring_parser.parse(ast.get_docstring(tree.body[0]))
+                raise NotImplementedError
+            except Exception as e:
+                print("Docstring ERROR: cannot update existing docstring")
+                raise NotImplementedError("recreate docstring")
+        else:
+            docstring = self.templater.get_method_docstring(
+                method_indent, args, returns, yields, raises, print_hints
+            )
+            self.env.append_after_line(sig_line, docstring)
 
 
 class ClassController(ObjectWithDocstring):
