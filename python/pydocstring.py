@@ -220,13 +220,21 @@ class MethodController(ObjectWithDocstring):
         args, returns, yields, raises = self._process_tree(tree)
         if self.env.update_existing:
             # TODO: parse existing docstring to get {args, returns, raises, tields} (=data)
+            # short desc
+            # long desc
+            # params
+            # returns
+            # yields
+            # raises
+            # FIXME: examples 
             # TODO: unify the data from the docstring and the function
             # TODO: write docstring
             try:
                 parsed_docstring = docstring_parser.parse(ast.get_docstring(tree.body[0]))
                 raise NotImplementedError
             except Exception as e:
-                print("Docstring ERROR: cannot update existing docstring")
+                print("Docstring WARNING: cannot update existing docstring")
+                # TODO
                 raise NotImplementedError("recreate docstring")
         else:
             docstring = self.templater.get_method_docstring(
