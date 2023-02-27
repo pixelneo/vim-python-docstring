@@ -12,14 +12,32 @@ sys.path[0:0] = deps
 import pydocstring
 EOF
 
+function! s:handle_error(exception)
+    echohl ErrorMsg
+    echo join(map(split(a:exception, ":")[2:], 'trim(v:val)'), " : ")
+    echohl None
+endfunction
+
 function! vimpythondocstring#Full()
-    python3 pydocstring.Docstring().full_docstring()
+    try
+        python3 pydocstring.Docstring().full_docstring()
+    catch
+        call s:handle_error(v:exception)
+    endtry
 endfunction
 
 function! vimpythondocstring#FullTypes()
-    python3 pydocstring.Docstring().full_docstring(print_hints=True)
+    try
+        python3 pydocstring.Docstring().full_docstring(print_hints=True)
+    catch
+        call s:handle_error(v:exception)
+    endtry
 endfunction
 
 function! vimpythondocstring#Oneline()
-    python3 pydocstring.Docstring().oneline_docstring()
+    try
+        python3 pydocstring.Docstring().oneline_docstring()
+    catch
+        call s:handle_error(v:exception)
+    endtry
 endfunction
