@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
-from string import Template
-import re
-import os
-import ast
 import abc
+import ast
+import os
+import re
+from string import Template
 
 import ibis
-
+from asthelper import ClassInstanceNameExtractor, ClassVisitor, MethodVisitor
 from utils import *
 from vimenv import *
-from asthelper import ClassVisitor, MethodVisitor, ClassInstanceNameExtractor
 
 
 class InvalidSyntax(Exception):
@@ -256,7 +255,10 @@ class Docstring:
 
     def _controller_factory(self, env, templater):
         line = env.current_line
-        first_word = re.match(r"^\s*(\w+).*", line).groups()[0]
+        try:
+            first_word = re.match(r"^\s*(\w+).*", line).groups()[0]
+        except Exception:
+            first_word = None
         if first_word == "def":
             return MethodController(env, templater)
         elif first_word == "class":
@@ -268,18 +270,18 @@ class Docstring:
                 if second_word == "def":
                     return MethodController(env, templater)
 
-        raise DocstringUnavailable("Docstring cannot be created for selected object")
+        raise DocstringUnavailable("Docstring ERROR: Doctring cannot be created for selected object")
 
     def full_docstring(self, print_hints=False):
         """Writes docstring containing arguments, returns, raises, ..."""
         try:
             self.obj_controller.write_docstring(print_hints=print_hints)
         except Exception as e:
-            print(concat_("Doctring ERROR: ", e))
+            raise DocstringUnavailable(concat_("Docstring ERROR: ", e))
 
     def oneline_docstring(self):
         """Writes only a one-line empty docstring"""
         try:
             self.obj_controller.write_simple_docstring()
         except Exception as e:
-            print(concat_("Doctring ERROR: ", e))
+            raise DocstringUnavailable(concat_("Docstring ERROR: ", e))
