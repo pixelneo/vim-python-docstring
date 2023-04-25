@@ -1,5 +1,5 @@
 # vim-python-docstring
-This is a plugin to Vim and NeoVim for creating of docstrings. 
+This is a plugin to Vim and NeoVim for the creation of Python docstrings. 
 
 ## What it does
 Docstrings for methods will contain a **list of parameters and their type hints**, **list of raised exceptions** and whether the method **yields** or **raises**.
